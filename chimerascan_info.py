@@ -4,20 +4,16 @@ import info
 import utils
 
 
-chimerascan_directory = os.path.join(info.install_directory, 'chimerascan')
-source_directory = os.path.join(chimerascan_directory, 'src')
-install_directory = os.path.join(chimerascan_directory, 'install')
+install_directory = os.path.join(info.install_directory, 'chimerascan')
+source_directory = os.path.join(install_directory, 'src')
 bin_directory = os.path.join(install_directory, 'bin')
-data_directory = os.path.join(chimerascan_directory, 'data')
-index_directory = os.path.join(chimerascan_directory, 'index')
+data_directory = os.path.join(install_directory, 'data')
+index_directory = os.path.join(install_directory, 'index')
 
 
 if 'PYTHONPATH' not in os.environ:
     os.environ['PYTHONPATH'] = ''
 os.environ['PYTHONPATH'] += os.path.join(install_directory, 'lib', 'python2.7', 'site-packages')
-
-
-sentinal = utils.AutoSentinal(os.path.join(chimerascan_directory, 'sentinal_'))
 
 
 chimerascan_index_bin = os.path.join(bin_directory, 'chimerascan_index.py')
