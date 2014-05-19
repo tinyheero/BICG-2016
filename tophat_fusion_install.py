@@ -29,7 +29,6 @@ def install():
 
 sentinal.run('install', install)
 
-
 def get_data():
 
     # utils.rmtree(index_directory)
@@ -49,6 +48,14 @@ def get_data():
         # subprocess.check_call('tar zxvf test_data.tar.gz'.split(' '))
 
         subprocess.check_call([tophat2_bin, '-r', '20', index_prefix, os.path.join('test_data', 'reads_1.fq'), os.path.join('test_data', 'reads_2.fq')])
+
+    utils.rmtree(data_directory)
+    
+    for url, filename in ((ref_gene_url, ref_gene_filename), (ens_gene_url, ens_gene_filename)):
+
+        subprocess.check_call(['wget', url, '-O', filename+'.gz')
+
+        subprocess.check_call(['gunzip', filename])
 
 sentinal.run('get_data', get_data)
 
