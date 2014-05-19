@@ -24,6 +24,9 @@ reference_genome_fasta = os.path.join(data_directory, 'hg19.fa')
 gene_models_filename = os.path.join(data_directory, 'hg19.ucsc_genes.txt')
 
 
-def results_directory(sample_id):
-    return os.path.join(info.results_directory, 'chimerascan', sample_id)
+results_directory = os.path.join(info.results_directory, 'chimerascan')
+
+
+def sample_results_directory(sample_id):
+    return os.path.join(results_directory, sample_id)
 

@@ -1,6 +1,7 @@
 import glob
 import shutil
 import os
+import sys
 import subprocess
 
 import utils
@@ -17,7 +18,8 @@ for sample_id in info.rnaseq_samples:
 
         if sentinal.unfinished:
 
-            subprocess.check_call([chimerascan_info.chimerascan_run_bin, 
+            subprocess.check_call([sys.executable,
+                                   chimerascan_info.chimerascan_run_bin, 
                                    chimerascan_info.index_directory,
                                    info.fastq_filename(sample_id, '1'),
                                    info.fastq_filename(sample_id, '2'),

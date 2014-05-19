@@ -54,5 +54,9 @@ with Sentinal('chimerascan_index') as sentinal:
 
         utils.rmtree(index_directory)
 
-        subprocess.check_call([sys.executable, chimerascan_info.chimerascan_index_bin, chimerascan_info.reference_genome_fasta, chimerascan_info.gene_models_filename, chimerascan_info.index_directory])
+        subprocess.check_call([sys.executable,
+                               chimerascan_info.chimerascan_index_bin,
+                               chimerascan_info.reference_genome_fasta,
+                               chimerascan_info.gene_models_filename,
+                               chimerascan_info.index_directory])
 
