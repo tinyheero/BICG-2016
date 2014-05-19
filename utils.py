@@ -1,0 +1,72 @@
+import os
+import shutil
+import subprocess
+
+
+class AutoSentinal(object):
+    def __init__(self, sentinal_prefix):
+        self.sentinal_prefix = sentinal_prefix
+    def run(self, name, func, *args, **kwargs):
+        sentinal_filename = self.sentinal_prefix + name
+        if os.path.exists(sentinal_filename):
+            return
+        func(*args, **kwargs)
+        with open(sentinal_filename, 'w') as sentinal_file:
+            pass
+
+
+def makedirs(directory):
+    try:
+        os.makedirs(directory)
+    except OSError as e:
+        if e.errno != 17:
+            raise
+
+
+def rmtree(directory):
+    try:
+        shutil.rmtree(directory)
+    except OSError as e:
+        if e.errno != 2:
+            raise
+
+
+class CurrentDirectory(object):
+    def __init__(self, directory):
+        self.directory = directory
+    def __enter__(self):
+        self.prev_directory = os.getcwd()
+        makedirs(self.directory)
+        os.chdir(self.directory)
+    def __exit__(self, *args):
+        os.chdir(self.prev_directory)
+
+
+def wget_file(url, filename):
+    makedirs(os.path.dirname(filename))
+    subprocess.check_call(['wget', url, '-O', filename])
+
+
+def download_single_sra_dataset(sra_id, output_dir):
+    url = 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/{0}/{1}/{2}/{2}.sra'.format(sra_id[:3], sra_id[:6], sra_id)
+    with CurrentDirectory(output_dir):
+        subprocess.check_call(['wget', '-r', '-nH', '--cut-dirs=9', url])
+
+
+def add_read_end(fastq_filename, read_end):
+    temp_fastq_filename = fastq_filename + '.tmp'
+    with open(fastq_filename, 'r') as f_in, open(temp_fastq_filename, 'w') as f_out:
+        for line_number, line in enumerate(f_in):
+            if line_number % 4 == 0:
+                line = line.rstrip() + '/' + read_end + '\n'
+            f_out.write(line)
+    os.remove(fastq_filename)
+    os.rename(temp_fastq_filename, fastq_filename)
+
+
+def extract_single_sra_dataset(sra_id, output_dir):
+    with CurrentDirectory(output_dir):
+        subprocess.check_call(['fastq-dump', '-F', '--split-files', sra_id+'.sra'])
+        for read_end in ('1', '2'):
+            add_read_end(sra_id+'_'+read_end+'.fastq', read_end)
+
