@@ -29,3 +29,6 @@ index_prefix = '/Users/amcphers/Downloads/Homo_sapiens_UCSC_hg19/Homo_sapiens/UC
 def results_directory(sample_id):
     return os.path.join(info.results_directory, 'tophat_fusion', sample_id)
 
+def tophat_output_directory(sample_id):
+    return os.path.join(results_directory(sample_id), 'tophat_'+sample_id)
+
