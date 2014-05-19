@@ -8,40 +8,64 @@ import utils
 import info
 
 
-sentinal = utils.AutoSentinal(os.path.join(info.data_directory, 'sentinal_'))
+Sentinal = utils.Sentinal(os.path.join(info.data_directory, 'sentinal_'))
 
 
-sentinal.run('download_ensembl_gtf', utils.wget_file, info.ensembl_gtf_url, info.ensembl_gtf_filename)
-sentinal.run('download_ensembl_chr20', utils.wget_file, info.ensembl_chr20_url, info.ensembl_chr20_filename)
-sentinal.run('download_hg19', utils.wget_file, info.hg19_url, info.hg19_tar_filename)
+with Sentinal('download_ensembl_gtf') as sentinal:
+
+    if sentinal.unfinished:
+
+        utils.wget_file(info.ensembl_gtf_url, info.ensembl_gtf_filename)
 
 
-def create_genome():
+with Sentinal('download_ensembl_chr20') as sentinal:
 
-    with open(info.hg19_filename, 'w') as hg19_file, tarfile.open(info.hg19_tar_filename, 'r:gz') as tar:
+    if sentinal.unfinished:
 
-        for tarinfo in tar:
-
-            chromosome = tarinfo.name[3:-3]
-
-            if chromosome in info.chromosomes:
-                shutil.copyfileobj(tar.extractfile(tarinfo), hg19_file)
-
-sentinal.run('extract_hg19', create_genome)
+        utils.wget_file(info.ensembl_chr20_url, info.ensembl_chr20_filename)
 
 
-def index_genome():
+with Sentinal('download_hg19') as sentinal:
 
-    subprocess.check_call(['bowtie2-build', info.hg19_filename, info.hg19_index_base])
+    if sentinal.unfinished:
 
-sentinal.run('index_hg19', index_genome)
+        utils.wget_file(info.hg19_url, info.hg19_tar_filename)
+
+
+with Sentinal('extract_hg19') as sentinal:
+
+    if sentinal.unfinished:
+
+        with open(info.hg19_filename, 'w') as hg19_file, tarfile.open(info.hg19_tar_filename, 'r:gz') as tar:
+
+            for tarinfo in tar:
+
+                chromosome = tarinfo.name[3:-3]
+
+                if chromosome in info.chromosomes:
+                    shutil.copyfileobj(tar.extractfile(tarinfo), hg19_file)
+
+
+with Sentinal('index_hg19') as sentinal:
+
+    if sentinal.unfinished:
+
+        subprocess.check_call(['bowtie2-build', info.hg19_filename, info.hg19_index_base])
 
 
 for sra_id in info.sra_samples:
 
-    sentinal.run('download_'+sra_id, utils.download_single_sra_dataset, sra_id, os.path.join(info.data_directory, sra_id))
+    with Sentinal('download_'+sra_id) as sentinal:
 
-    sentinal.run('extract_'+sra_id, utils.extract_single_sra_dataset, sra_id, os.path.join(info.data_directory, sra_id))
+        if sentinal.unfinished:
+
+            utils.download_single_sra_dataset(sra_id, os.path.join(info.data_directory, sra_id))
+
+    with Sentinal('extract_'+sra_id) as sentinal:
+
+        if sentinal.unfinished:
+
+            utils.extract_single_sra_dataset(sra_id, os.path.join(info.data_directory, sra_id))
 
 
 def create_simulated_rnaseq(sample_id, sim_seed):
@@ -63,5 +87,9 @@ def create_simulated_rnaseq(sample_id, sim_seed):
 
 for sample_id, sim_seed in zip(info.sim_samples, info.sim_seeds):
 
-    sentinal.run('simulate_'+sample_id, create_simulated_rnaseq, sample_id, sim_seed)
+    with Sentinal('simulate_'+sample_id) as sentinal:
+
+        if sentinal.unfinished:
+
+            create_simulated_rnaseq(sample_id, sim_seed)
 

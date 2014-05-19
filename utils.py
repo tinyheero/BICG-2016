@@ -3,16 +3,22 @@ import shutil
 import subprocess
 
 
-class AutoSentinal(object):
-    def __init__(self, sentinal_prefix):
-        self.sentinal_prefix = sentinal_prefix
-    def run(self, name, func, *args, **kwargs):
-        sentinal_filename = self.sentinal_prefix + name
-        if os.path.exists(sentinal_filename):
-            return
-        func(*args, **kwargs)
-        with open(sentinal_filename, 'w') as sentinal_file:
-            pass
+class Sentinal(object):
+    def __init__(self, sentinal_filename):
+        self.sentinal_filename = sentinal_filename
+    def __call__(self, name):
+        return Sentinal(self.sentinal_filename + name)
+    @property
+    def unfinished(self):
+        if os.path.exists(self.sentinal_filename):
+            return False
+        return True
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            with open(self.sentinal_filename, 'w') as sentinal_file:
+                pass
 
 
 def makedirs(directory):
