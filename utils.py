@@ -38,7 +38,9 @@ def rmtree(directory):
 
 
 def symlink(filename):
-    os.symlink(filename, os.path.join(os.getcwd(), os.path.basename(filename)))
+    link_name = os.path.join(os.getcwd(), os.path.basename(filename))
+    os.remove(link_name)
+    os.symlink(filename, link_name)
 
 
 class CurrentDirectory(object):

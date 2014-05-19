@@ -49,7 +49,14 @@ with Sentinal('extract_hg19') as sentinal:
                     shutil.copyfileobj(tar.extractfile(tarinfo), hg19_file)
 
 
-with Sentinal('index_hg19') as sentinal:
+with Sentinal('bowtie_index_hg19') as sentinal:
+
+    if sentinal.unfinished:
+
+        subprocess.check_call(['bowtie-build', info.hg19_filename, info.hg19_index_base])
+
+
+with Sentinal('bowtie2_index_hg19') as sentinal:
 
     if sentinal.unfinished:
 
