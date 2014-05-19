@@ -11,7 +11,7 @@ import tophat_fusion_info
 Sentinal = utils.Sentinal(os.path.join(tophat_fusion_info.results_directory, 'sentinal_'))
 
 
-for sample_id in info.sim_samples:
+for sample_id in info.rnaseq_samples:
 
     with Sentinal('run_tophat_'+sample_id) as sentinal:
 
