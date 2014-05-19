@@ -8,6 +8,9 @@ import utils
 import info
 
 
+utils.makedirs(info.data_directory)
+
+
 Sentinal = utils.Sentinal(os.path.join(info.data_directory, 'sentinal_'))
 
 
