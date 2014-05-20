@@ -37,9 +37,17 @@ def rmtree(directory):
             raise
 
 
+def remove(filename):
+    try:
+        os.remove(filename)
+    except OSError as e:
+        if e.errno != 2:
+            raise
+
+
 def symlink(filename):
     link_name = os.path.join(os.getcwd(), os.path.basename(filename))
-    os.remove(link_name)
+    remove(link_name)
     os.symlink(filename, link_name)
 
 
