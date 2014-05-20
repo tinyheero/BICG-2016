@@ -28,8 +28,8 @@ with Sentinal('install') as sentinal:
 
         utils.makedirs(tophat_fusion_info.bin_directory)
 
-        os.symlink(os.path.join(extract_dir, 'tophat2'), tophat2_bin)
-        os.symlink(os.path.join(extract_dir, 'tophat-fusion-post'), tophat_fusion_post_bin)
+        os.symlink(os.path.join(extract_dir, 'tophat2'), tophat_fusion_info.tophat2_bin)
+        os.symlink(os.path.join(extract_dir, 'tophat-fusion-post'), tophat_fusion_info.tophat_fusion_post_bin)
 
 
 with Sentinal('get_data') as sentinal:
