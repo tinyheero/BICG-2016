@@ -32,8 +32,6 @@ for sample_id in info.rnaseq_samples:
 
         if sentinal.unfinished:
 
-            print tophat_fusion_info.sample_results_directory(sample_id)
-
             with utils.CurrentDirectory(tophat_fusion_info.sample_results_directory(sample_id)):
 
                 utils.symlink(tophat_fusion_info.blast_human_directory)
