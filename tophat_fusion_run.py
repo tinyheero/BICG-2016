@@ -8,6 +8,9 @@ import info
 import tophat_fusion_info
 
 
+os.environ['PATH'] += ':' + tophat_fusion_info.bin_directory
+
+
 Sentinal = utils.Sentinal(os.path.join(tophat_fusion_info.results_directory, 'sentinal_'))
 
 
@@ -19,7 +22,7 @@ for sample_id in info.rnaseq_samples:
 
             utils.makedirs(tophat_fusion_info.sample_tophat_output_directory(sample_id))
 
-            subprocess.check_call([tophat_fusion_info.tophat2_bin,
+            subprocess.check_call(['tophat2',
                                    '--mate-inner-dist', '100',
                                    '--mate-std-dev', '30',
                                    '--fusion-search',
@@ -38,7 +41,7 @@ for sample_id in info.rnaseq_samples:
                 utils.symlink(tophat_fusion_info.ref_gene_filename)
                 utils.symlink(tophat_fusion_info.ens_gene_filename)
 
-                subprocess.check_call([tophat_fusion_info.tophat_fusion_post_bin,
+                subprocess.check_call(['tophat-fusion-post',
                                        '--num-fusion-reads', '1',
                                        '--num-fusion-pairs', '2',
                                        '--num-fusion-both', '5',

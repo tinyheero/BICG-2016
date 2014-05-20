@@ -11,9 +11,6 @@ bin_directory = os.path.join(install_directory, 'bin')
 data_directory = os.path.join(install_directory, 'data')
 blast_human_directory = os.path.join(data_directory, 'blast_human')
 
-tophat2_bin = os.path.join(bin_directory, 'tophat2')
-tophat_fusion_post_bin = os.path.join(bin_directory, 'tophat-fusion-post')
-
 
 ref_gene_url = 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/refGene.txt.gz'
 ref_gene_filename = os.path.join(data_directory, 'refGene.txt')
