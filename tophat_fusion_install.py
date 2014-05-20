@@ -33,10 +33,12 @@ with Sentinal('install') as sentinal:
 
             subprocess.check_call('tar -xzvf {0}.tar.gz'.format(package_name).split(' '))
 
-            extract_dir = os.path.join(tophat_fusion_info.install_directory, package_name)
+            extract_dir = os.path.join(tophat_fusion_info.packages_directory, package_name)
 
-            os.symlink(os.path.join(extract_dir, 'tophat2'), tophat_fusion_info.tophat2_bin)
-            os.symlink(os.path.join(extract_dir, 'tophat-fusion-post'), tophat_fusion_info.tophat_fusion_post_bin)
+            with utils.CurrentDirectory(tophat_fusion_info.bin_directory):
+
+                utils.symlink(os.path.join(extract_dir, 'tophat2'))
+                utils.symlink(os.path.join(extract_dir, 'tophat-fusion-post'))
 
             if 'darwin' in sys.platform:
                 package_name = 'cufflinks-2.2.1.OSX_x86_64'
@@ -47,11 +49,13 @@ with Sentinal('install') as sentinal:
 
             subprocess.check_call('tar -xzvf {0}.tar.gz'.format(package_name).split(' '))
 
-            extract_dir = os.path.join(tophat_fusion_info.install_directory, package_name)
+            extract_dir = os.path.join(tophat_fusion_info.packages_directory, package_name)
 
-            os.symlink(os.path.join(extract_dir, 'cufflinks'), tophat_fusion_info.cufflinks_bin)
-            os.symlink(os.path.join(extract_dir, 'cuffnorm'), tophat_fusion_info.cuffnorm_bin)
-            os.symlink(os.path.join(extract_dir, 'gffread'), tophat_fusion_info.gffread_bin)
+            with utils.CurrentDirectory(tophat_fusion_info.bin_directory):
+
+                utils.symlink(os.path.join(extract_dir, 'cufflinks'))
+                utils.symlink(os.path.join(extract_dir, 'cuffnorm'))
+                utils.symlink(os.path.join(extract_dir, 'gffread'))
 
 
 with Sentinal('get_data') as sentinal:
