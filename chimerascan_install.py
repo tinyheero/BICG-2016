@@ -1,6 +1,7 @@
 import glob
 import shutil
 import os
+import sys
 import subprocess
 
 import utils
@@ -52,7 +53,7 @@ with Sentinal('chimerascan_index') as sentinal:
 
     if sentinal.unfinished:
 
-        utils.rmtree(index_directory)
+        utils.rmtree(chimerascan_info.index_directory)
 
         subprocess.check_call([sys.executable,
                                chimerascan_info.chimerascan_index_bin,
