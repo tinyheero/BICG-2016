@@ -5,6 +5,8 @@ import utils
 
 
 install_directory = os.path.join(info.install_directory, 'tophat_fusion')
+
+packages_directory = os.path.join(install_directory, 'packages')
 bin_directory = os.path.join(install_directory, 'bin')
 data_directory = os.path.join(install_directory, 'data')
 blast_human_directory = os.path.join(data_directory, 'blast_human')
