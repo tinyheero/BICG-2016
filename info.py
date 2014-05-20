@@ -1,6 +1,9 @@
 import os
 
-tutorial_directory = '/Users/amcphers/Analysis/cbw_tutorial'
+config = {}
+execfile('paths.conf', config) 
+
+tutorial_directory = config['tutorial_directory']
 
 data_directory = os.path.join(tutorial_directory, 'data')
 genome_directory = os.path.join(tutorial_directory, 'genome')
