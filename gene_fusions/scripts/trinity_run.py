@@ -8,10 +8,15 @@ import info
 import trinity_info
 
 
-Sentinal = utils.Sentinal(os.path.join(trinity_info.results_directory, 'sentinal_'))
+trinity_results_directory = os.path.join(info.results_directory, 'trinity')
 
 
-for sample_id in info.sim_samples:
+Sentinal = utils.Sentinal(os.path.join(trinity_results_directory, 'sentinal_'))
+
+
+for sample_id in info.rnaseq_samples:
+
+    results_directory = os.path.join(trinity_results_directory, sample_id)
 
     with Sentinal('run_trinity_'+sample_id) as sentinal:
 
@@ -23,5 +28,20 @@ for sample_id in info.sim_samples:
                                    '--CPU', '4',
                                    '--left', info.fastq_filename(sample_id, '1'),
                                    '--right', info.fastq_filename(sample_id, '2'),
-                                   '--output', trinity_info.sample_results_directory(sample_id)])
+                                   '--output', results_directory])
 
+    contig_fasta = os.path.join(results_directory, 'Trinity.fasta')
+    contig_mapping_filename = os.path.join(results_directory, 'Trinity.gff3')
+
+    with Sentinal('run_gmap_'+sample_id) as sentinal:
+
+        if sentinal.unfinished:
+
+            with open(contig_mapping_filename, 'w') as contig_mapping_file:
+
+                subprocess.check_call(['gmap',
+                                       '-f', 'gff3_gene',
+                                       '-D', info.gmap_index_directory,
+                                       '-d', 'chr20',
+                                       contig_fasta],
+                                      stdout=contig_mapping_file)

@@ -18,14 +18,24 @@ with Sentinal('download_ensembl_gtf') as sentinal:
 
     if sentinal.unfinished:
 
-        utils.wget_file(info.ensembl_gtf_url, info.ensembl_gtf_filename)
+        utils.wget_file(info.ensembl_gtf_url, info.ensembl_gtf_filename+'.gz')
+        subprocess.check_call(['gunzip', info.ensembl_gtf_filename+'.gz'])
 
 
 with Sentinal('download_ensembl_chr20') as sentinal:
 
     if sentinal.unfinished:
 
-        utils.wget_file(info.ensembl_chr20_url, info.ensembl_chr20_filename)
+        utils.wget_file(info.ensembl_chr20_url, info.ensembl_chr20_filename+'.gz')
+        subprocess.check_call(['gunzip', info.ensembl_chr20_filename+'.gz'])
+
+
+with Sentinal('gmap_build_chr20') as sentinal:
+
+    if sentinal.unfinished:
+
+        utils.makedirs(info.gmap_index_directory)
+        subprocess.check_call(['gmap_build', '-D', info.gmap_index_directory, '-d', 'chr20', info.ensembl_chr20_filename])
 
 
 with Sentinal('download_hg19') as sentinal:
