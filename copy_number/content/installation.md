@@ -91,21 +91,22 @@ We will use the procedure described on the [penncnv site](http://www.openbioinfo
 
 > Note: You will need to register with Affymetrix to download the library files, specifically the .cdf file, from the [affimetrix site](http://www.affymetrix.com/support/technical/byproduct.affx?product=genomewidesnp_6). The [aroma-project](http://www.aroma-project.org/docs) has a copy available which we will download since it can be done from the cloud.
 
-You will need to change some variables in the `run_PennCNV.sh` to point to the folders you are creating below. I will point these out as we go.
-
     cd $INSTALL_DIR/src
     wget http://www.openbioinformatics.org/penncnv/download/penncnv.latest.tar.gz
-    # Change penncnvDir variable to point to the directory created.
-    tar -zxvf penncnv.latest.tar.gz
+    tar -xzvf penncnv.latest.tar.gz
+    export PENN_CNV_DIR=$INSTALL_DIR/src/penncnv
+    
     wget http://www.openbioinformatics.org/penncnv/download/gw6.tar.gz
-    # Change the gw6Dir variable to point to folder created 
-    tar -zxvf gw6.tar.gz
-    wget http://media.affymetrix.com/Download/updates/apt-1.15.1-src.zip
-    # Change the aptDir variable to point to the folder created
-    unzip apt-1.15.1-src.zip
-    wget http://www.aroma-project.org/data/annotationData/chipTypes/GenomeWideSNP_6/GenomeWideSNP_6,Full.CDF.gz
-    # Change the cdfFile variable to point to the file created
-    gunzip GenomeWideSNP_6,Full.CDF.gz
+    tar -xzvf gw6.tar.gz
+    export GW6_DIR=$INSTALL_DIR/src/gw6
+    
+    wget http://media.affymetrix.com/Download/updates/apt-1.15.2-x86_64-intel-linux.zip
+    unzip apt-1.15.2-x86_64-intel-linux.zip
+    export APT_DIR=$INSTALL_DIR/src/apt-1.15.2-x86_64-intel-linux
+    
+    wget http://www.aroma-project.org/data/annotationData/chipTypes/GenomeWideSNP_6/GenomeWideSNP_6.cdf.gz
+    gunzip GenomeWideSNP_6.cdf.gz
+    export SNP6_CDF=$INSTALL_DIR/src/GenomeWideSNP_6.cdf
 
 ## Installing OncoSNP
 For predicting CNVs from the array data we will use OncoSNP in this tutorial. The files for OncoSNP can be downloaded from <https://sites.google.com/site/oncosnp/user-guide/downloads>. Before you can use OncoSNP you will need to register with the author and he will supply a password which you can use to unlock the downloaded files.
@@ -113,19 +114,20 @@ For predicting CNVs from the array data we will use OncoSNP in this tutorial. Th
 We will also need to download GC content files for the relevant build of the genome. For this tutorial we will use the hg18 (build 36) files.
 
     cd $INSTALL_DIR/src
-    wget ftp://ftp.stats.ox.ac.uk/pub/yau/oncosnp/executables/oncosnp_v2.28.run
-    chmod +x oncosnp_v2.28.run
-    # This will require that you have registered and received a password.
-    ./oncosnp_v2.28.run
+    wget http://www.well.ox.ac.uk/~cyau/oncosnp/oncosnp_v1.4.run
+    bash oncosnp_v1.4.run          # enter your oncosnp password
+    export ONCOSNP_DIR=$INSTALL_DIR/src/oncosnp
+    
     wget ftp://ftp.stats.ox.ac.uk/pub/yau/oncosnp/mcr/MCRinstaller.run.zip
     unzip MCRinstaller.run.zip
-    chmod +x MCRinstaller.run
-    # You will need the same password from the previous step here.
-    ./MCRinstaller.run
+    bash MCRinstaller.run          # enter your oncosnp password, and select installation directory
+    export MCR_DIR=$YOUR_MCR_DIR   # export location of matlab compiler runtime (see below)
+    
     wget ftp://ftp.stats.ox.ac.uk/pub/yau/quantisnp2/download/b36.tar.gz
     tar -zxvf b36.tar.gz
+    export GC_DIR=$INSTALL_DIR/src/b36
 
-The `MCRinstaller.run` program will ask you where to install the MATLAB install files. You should edit the `mcrDir` in the `run_oncosnp.sh` script to point here. You will also need to edit the `installDir` variable to point to where OncoSNP installs and the `gcDir` variable to point to the folder created by decompressing `b36.tar.gz`. 
+The `MCRinstaller.run` installer will ask you where to install the MATLAB MCR files. You should `export MCR_DIR=` to create an environment variable pointing to the location to which you installed MATLAB MCR.  The MCR will be located in a subdirectory `MATLAB_Compiler_Runtime/vXXX` for version XXX of the compiler.
 
 ## Installing HMMcopy
 For this tutorial we will install HMMcopy. It is a Bioconductor package http://www.bioconductor.org/packages/release/bioc/html/HMMcopy.html.
