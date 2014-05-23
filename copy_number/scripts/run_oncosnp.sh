@@ -1,25 +1,20 @@
 #!/bin/bash
 
-batchFile=$1 
+BATCH_FILE=$1 
 
-outDir=$2
-
-installDir=/usr/local/oncosnp
-
-mcrDir=/opt/MATLAB/MATLAB_Compiler_Runtime/v714
-
-gcDir=/home/ubuntu/CourseData/CG_data/Module5/data/config/b36
+OUTPUT_DIR=$2
 
 #### OncoSNP Parameter Files ####
 
-hyperparamsFile=/home/ubuntu/CourseData/CG_data/Module5/data/config/oncosnp/hyperparameters-affy.fixed.dat
+HYPERPARAMS_FILE=$ONCOSNP_DIR/data/cyau/temp/oncosnp/configuration/hyperparameters-affy.dat
 
-levelsFile=$installDir/configuration/levels-affy.dat
+LEVELS_FILE=$ONCOSNP_DIR/configuration/levels-affy.dat
 
-trainingFile=$installDir/configuration/trainingStates.dat
+TRAINING_FILE=$ONCOSNP_DIR/configuration/trainingStates.dat
 
-statesFile=$installDir/configuration/tumourStates.dat
+STATES_FILE=$ONCOSNP_DIR/configuration/tumourStates.dat
 
+HGTABLES_FILE=$ONCOSNP_DIR/configuration/hgTables_b37.txt
 
 ############## EXECUTE ONCOSNP ####################################################################################
 ############## For more information, see https://sites.google.com/site/oncosnp/user-guide/using-oncosnp ###########
@@ -73,4 +68,25 @@ statesFile=$installDir/configuration/tumourStates.dat
 #--quickmode 
 #Use a quicker estimation (possibly less accurate) method for fitting the OncoSNP model to the sample data.
 
-$installDir/run_oncosnp.sh $mcrDir --batch-file $batchFile --output-dir $outDir --fulloutput --plot --gcdir $gcDir --paramsfile $hyperparamsFile --levelsfile $levelsFile --subsample 30 --emiters 1 --female --trainingstatesfile $trainingFile --tumourstatesfile $statesFile --chr 21 --stromal --intratumor >$outDir/run.log 2>$outDir/run.err
+$ONCOSNP_DIR/run_oncosnp.sh $MCR_DIR \
+    --batch-file $BATCH_FILE \
+    --output-dir $OUTPUT_DIR \
+    --fulloutput --plot \
+    --gcdir $GC_DIR \
+    --paramsfile $HYPERPARAMS_FILE \
+    --levelsfile $LEVELS_FILE \
+    --subsample 30 \
+    --emiters 1 \
+    --female \
+    --trainingstatesfile $TRAINING_FILE \
+    --tumourstatesfile $STATES_FILE \
+    --chr 21 \
+    --stromal \
+    --intratumor \
+    --hgtables $HGTABLES_FILE \
+    >$OUTPUT_DIR/run.log 2>$OUTPUT_DIR/run.err
+
+
+
+
+
