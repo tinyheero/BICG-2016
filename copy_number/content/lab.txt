@@ -1,0 +1,282 @@
+################################################################################
+# Lab 5 - CNV Analysis
+################################################################################
+
+################################################################################
+## Part 1: Setup
+################################################################################
+
+# First login into the cloud.
+
+# Now enter the ~/workspace directory
+cd ~/workspace
+
+# Now we will download the scripts we need for this module from the wiki page.I 
+# have copied the link from the wiki page below. If the command below does not 
+# work try copying the link from the wiki and pasting yourself.
+wget http://bioinformatics.ca/workshop_wiki/images/0/0c/Module5.tar.gz
+
+# Now we will "unzip" the files.
+tar -zxvf Module5.tar.gz
+
+# This should create a folder called Module5. Check this is true.
+ls -lh
+
+# We can now remove the compressed ".tar.gz" file to keep our workspace clean.
+rm Module5.tar.gz
+
+# Enter the Module5 directory
+cd Module5/
+
+################################################################################
+# Part 2.1 - Array Normalisation and LRR/BAF Extraction
+#
+# The first step in array analysis is to normalise the data and extract the lrr
+# (log R) and baf (B allele frequencies). The following steps will create
+# normalised data from Affymetrix SNP6 data.
+################################################################################
+
+# First we will create a folder to work in and enter it. The -p flag for mkdir 
+# will create the parent directory data/ as well as data/cel.
+mkdir -p data/cel
+
+cd data/cel
+
+# Now we will "symbolically link" to the real data files. A symbolic link 
+# or symlink is a fake file which points to a real file somewhere else. This is
+# useful because it saves us copying files and using lots of disk space. In
+# addition if we accidentally delete a symlink, the original file is safe.
+ln -s ~/CourseData/CG_data/Module5/data/cel/*.CEL .
+
+ln -s ~/CourseData/CG_data/Module5/data/cel/file_list.txt .
+
+ls -lh
+
+# Please take a look at file_list.txt. This is an input into the normalisation
+# procedure which tells the program where to find the raw data files. You
+# need to edit the paths to these files so they point to our symlinks
+less -S file_list.txt
+
+# To edit I use `nano`. The -w flag stops the program from wrapping long lines
+# onto the next line.
+nano -w file_list.txt
+
+# Go to the scripts/ directory
+cd ../../scripts
+
+# Look at the script for doing array normalisation
+less -S run_array_normalisation.sh
+
+# Before we execute the script we need a place for the normalised data to go, so
+# we create a directory.
+mkdir ../data/penncnv
+
+# The script requires two inputs. The file listing the .cel files to be 
+# normalised and an ouput directory. We will run this script in the background
+# since it is slow. While it runs study the script and pleas ask questions.
+./run_array_normalisation.sh ../data/cel/file_list.txt ../data/penncnv &
+
+# The normalised files will be placed in ../data/penncnv.
+ls -lh ../data/penncnv
+
+less -S ../data/penncnv/gw6.GSM337641
+
+################################################################################
+# Part 2.2 - CNV Calling and Visualisation 
+#
+# Now that we have the BAF and LRR data we will use OncoSNP to analyse this data
+################################################################################
+
+# First we will create a working directory for OncoSNP
+mkdir ../data/oncosnp
+
+cd ../data/oncosnp
+
+# Now we will copy a template batch file which we need to edit to point to our
+# newly created normalised data.
+cp ~/CourseData/CG_data/Module5/data/oncosnp_input/batch.txt .
+
+# Next we edit this file to point to our data. Note the tumour data is in
+# gw6.GSM337641 and the normal data in gw6.GSM337662
+nano -w batch.txt
+
+# Now we will go back to the scripts directory
+cd ../../scripts
+
+# We will create an ouput directory for the results of our analysis
+mkdir ../data/oncosnp/results
+
+# Take a look at the script for running OncoSNP. It requires two inputs, the 
+# path to the batch file we edited above and the output directory.
+less -S run_oncosnp.sh
+
+# We will run OncoSNP in the background since it is slow. While it goes we can
+# take a few more minutes to study the script for launching it. Pleas ask
+# questions.
+./run_oncosnp.sh ../data/oncosnp/batch.txt ../data/oncosnp/results &
+
+# Rather then print to screen, the script sends the output of OncoSNP to a log
+# file. We can monitor the progress of the program by examining this file.
+less -S ../data/oncosnp/results/run.log
+
+# Similarly the errors are also sent to a file which we can explore.
+less -S ../data/oncosnp/results/run.err
+
+# We can see if the script is still running by looking at our background jobs
+jobs
+
+# When the program finishes we can go to the output folder
+cd ../data/oncosnp/results
+
+# There are lots of files produced.
+ls -lh
+
+# The first key file is the .qc file which outputs some basic quality control
+# values and some parameters. Probably the most interesting value is the stromal
+# contamination i.e. fraction of normal cells. Two values are reported by 
+# default because OncoSNP does multiple analysis runs. The first value is the 
+# most probable.
+less -S HCC1143.qc
+
+# Next is .cnvs file which contains the smoothed segments with there copy number
+# prediction.
+less -S HCC1143.cnvs
+
+# The last file we will look at is the .cnv file. This is essentially a more
+# informative version of the .cnvs file. One column of particular interest is
+# the "Tumour State" column. This is an integer >= 1 which represents the most 
+# likely state of the HMM for that segment. 
+less -S HCC1143.cnv
+
+# One downside of OncoSNP is that it does not give parental copy number directly
+# . We can recover this information by taking the tumour state for a segment and
+# looking it up in the file passed to OncoSNP after the --tumourstatesfile flag.
+# The states correspond to rows in this file. The minor copy number is given by
+# the TumourBalleles2 column, the major copy number is given by the 
+# tumourBalleles3 and the total copy number by TumourBalleles4.
+less -S /usr/local/oncosnp/configuration/tumourStates.dat
+
+# I've written a script to parse this information out.
+cd ../../../scripts
+
+python parse_segments.py ../data/oncosnp/results/HCC1143.cnv ../data/oncosnp/results/HCC1143.pcn.seg /usr/local/oncosnp/configuration/tumourStates.dat
+
+less -S ../data/oncosnp/results/HCC1143.pcn.seg
+
+# The final intersting file that OncoSNP produces is the plots HCC1143.ps.gz.
+# Since I would like to avoid dealing with transfering from the cloud in this
+# tutorial I have included a copy of the figure in scripts for this lab.
+# Download this file to your own computer decompress it. The plot is under
+# figures/oncosnp.
+
+################################################################################
+# Part 3.1 - WGSS Normalisation and LRR Extraction
+#
+# The workflow for WGSS data is not dramatically different. We still need to do
+# some normalisation and B allele extraction.
+################################################################################
+
+# As a first step we will create a folder to work in.
+mkdir ../data/hmmcopy
+
+# I have written an R script to run HMM copy. Take a look at it.
+cd hmmcopy
+
+less -S run.R
+
+# HMMcopy requires several input files all in .wig format. For most analyses
+# you can use the GC content and mappability files on the HMMcopy website. 
+# For this lab I needed to create special ones since we are working with chr21.
+# We can take a look at these files.
+less -S ~/CourseData/CG_data/Module5/data/wig/hg19.21.gc.wig
+
+less -S ~/CourseData/CG_data/Module5/data/wig/hg19.21.map.wig
+
+# When you do your own analysis you will need to create .wig files for the 
+# tumour and normal data. The following commands would do that. They take some
+# time so we WILL NOT execute them.
+/usr/local/HMMcopy/bin/readCounter ~/CourseData/CG_data/Module5/data/bam/HCC1143.normal.21.bam -c 21 > ../../data/hmmcopy/HCC1143.normal.21.wig
+
+/usr/local/HMMcopy/bin/readCounter ~/CourseData/CG_data/Module5/data/bam/HCC1143.tumour.21.bam -c 21 > ../../data/hmmcopy/HCC1143.tumour.21.wig
+
+# The R script we will launch will point to pre-compute version of these. But
+# for your own analyses you need to change this. To execute the R script start
+# R.
+R
+
+# In the R environment load and execute the script.
+source('run.R')
+
+# When it finishes quit R
+quit()
+
+# Now we can look at the output
+cd ../../data/hmmcopy
+
+ls -lh
+
+# There are two directories. results/ contains the segment files. plots/ contains
+# the various plots generated. Of particular use is the .igv.seg file which can
+# be loaded into IGV. I've uploaded a version to the wiki which you cna download 
+# on your own computer.
+less -S results/tumour.igv.seg
+
+# The plots file are in the scripts you downloaded earlier under figures/hmmcopy.
+
+# To do extract BAF data you need to do two steps. The first is to run GATK
+# or some other program to call heterozygous SNP positions in the normal.
+# The second is to extract the count data in the tumour at these positions.
+# I have included a script run_gatk.sh to do step 1 and Python script
+# build_apolloh_allelic_counts_file.py do to step 2.
+# DO NOT RUN THIS STEP
+cd ../../scripts 
+
+# You would need to edit this script toNormal cell contamination point to your own files
+./run_gatk
+
+# This would create a file, ../data/baf.txt, with the allelic counts for APOLLOH.
+python build_apolloh_allelic_counts_file.py ~/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.vcf ../data/baf.txt --normal_column 1
+
+################################################################################
+# Part 3.2 - CNV Analysis
+#
+# Though HMMCopy gives total copy number information, it does not give any 
+# information about LOH. To get this we will use APOLLOH.
+################################################################################
+# The run_appoloh.sh script will do an APOLLOH analysis. We will use 
+# pre-computed inputs.
+less -S run_apolloh.sh
+
+# File produced by python build_apolloh_allelic_counts_file.py
+less -S ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.allelic_counts.tsv
+
+# File produce by HMMcopy
+less -S ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.copy_number.seg
+
+# We will run APOLLOH now
+mkdir ../data/apolloh
+
+./run_apolloh.sh ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.allelic_counts.tsv ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.copy_number.seg ../data/apolloh
+
+# Now we can examine the output
+cd ../data/apolloh
+
+# There are three files. params.txt contains the APOLLOH model paramters. Most
+# interesting Normal cell contamination
+less -S params.txt
+
+# The loh.txt file contains information about the state of each SNP
+less -S loh.txt
+
+# The segs.txt contains information about the segments.
+less -S segs.txt
+
+################################################################################
+# Part 4 - Visualissing Datasets In IGV
+#
+# For this part please download the METABRIC dataset from the wiki and open it
+# in IGV.
+################################################################################
+
+
+
