@@ -25,11 +25,11 @@ with Sentinal('install') as sentinal:
 
             subprocess.check_call('git clone https://dranew@bitbucket.org/dranew/defuse.git'.split(' '))
 
-            with utils.CurrentDirectory(os.path.join('defuse', 'tools')):
+            with utils.CurrentDirectory(os.path.join(defuse_info.defuse_directory, 'tools')):
 
                 subprocess.check_call(['make'])
 
-            template_config_filename = os.path.join('defuse', 'scripts', 'config.txt')
+            template_config_filename = os.path.join(defuse_info.defuse_directory, 'scripts', 'config.txt')
 
             with open(defuse_info.config_filename, 'w') as config_file, open(template_config_filename, 'r') as template_config_file:
 
@@ -40,7 +40,7 @@ with Sentinal('install') as sentinal:
                         value = value.strip()
 
                         if key == 'source_directory':
-                            line = 'source_directory = {0}\n'.format(extract_dir)
+                            line = 'source_directory = {0}\n'.format(defuse_info.defuse_directory)
                         elif key == 'dataset_directory':
                             line = 'dataset_directory = {0}\n'.format(defuse_info.data_directory)
                         elif '[path of your' in value:
