@@ -14,3 +14,5 @@ createref_script = os.path.join(defuse_directory, 'scripts', 'create_reference_d
 defuse_script = os.path.join(defuse_directory, 'scripts', 'defuse.pl')
 config_filename = os.path.join(data_directory, 'config.txt')
 
+results_directory = os.path.join(info.results_directory, 'defuse')
+
