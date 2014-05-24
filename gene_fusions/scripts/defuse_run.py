@@ -11,8 +11,7 @@ import defuse_info
 Sentinal = utils.Sentinal(os.path.join(defuse_info.results_directory, 'sentinal_'))
 
 
-def results_directory(sample_id):
-    return os.path.join(defuse_directory, sample_id)
+results_directory = os.path.join(info.results_directory, 'defuse')
 
 
 for sample_id in info.rnaseq_samples:
@@ -21,10 +20,10 @@ for sample_id in info.rnaseq_samples:
 
         if sentinal.unfinished:
 
-            utils.makedirs(results_directory(sample_id))
+            utils.makedirs(defuse_info.sample_results_directory(sample_id))
             subprocess.check_call([defuse_info.defuse_script,
                                    '-c', defuse_info.config_filename,
                                    '-1', info.fastq_filename(sample_id, '1'),
                                    '-2', info.fastq_filename(sample_id, '2'),
-                                   '-o', results_directory(sample_id)])
+                                   '-o', defuse_info.sample_results_directory(sample_id)])
 
