@@ -19,28 +19,17 @@ with Sentinal('install') as sentinal:
         utils.rmtree(defuse_info.packages_directory)
         utils.makedirs(defuse_info.packages_directory)
 
-        utils.rmtree(defuse_info.bin_directory)
-        utils.makedirs(defuse_info.bin_directory)
-
         utils.makedirs(defuse_info.data_directory)
 
         with utils.CurrentDirectory(defuse_info.packages_directory):
 
-            subprocess.check_call('wget --no-check-certificate http://downloads.sourceforge.net/project/defuse/defuse/0.6/defuse-0.6.1.tar.gz'.split(' '))
+            subprocess.check_call('git clone https://dranew@bitbucket.org/dranew/defuse.git'.split(' '))
 
-            subprocess.check_call('tar -xzvf defuse-0.6.1.tar.gz'.split(' '))
-
-            extract_dir = os.path.join(defuse_info.packages_directory, 'defuse-0.6.1')
-
-            with utils.CurrentDirectory(os.path.join(extract_dir, 'tools')):
+            with utils.CurrentDirectory(os.path.join('defuse', 'tools')):
 
                 subprocess.check_call(['make'])
 
-            with utils.CurrentDirectory(os.path.join(defuse_info.bin_directory)):
-
-                utils.symlink(os.path.join(extract_dir, 'scripts'))
-
-            template_config_filename = os.path.join(extract_dir, 'scripts', 'config.txt')
+            template_config_filename = os.path.join('defuse', 'scripts', 'config.txt')
 
             with open(defuse_info.config_filename, 'w') as config_file, open(template_config_filename, 'r') as template_config_file:
 
