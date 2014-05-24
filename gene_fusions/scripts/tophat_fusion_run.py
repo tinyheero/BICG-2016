@@ -38,7 +38,7 @@ for sample_id in info.rnaseq_samples:
 
             with utils.CurrentDirectory(tophat_fusion_info.sample_results_directory(sample_id)):
 
-                utils.symlink(tophat_fusion_info.blast_human_directory)
+                utils.symlink(tophat_fusion_info.blast_directory)
                 utils.symlink(tophat_fusion_info.ref_gene_filename)
                 utils.symlink(tophat_fusion_info.ens_gene_filename)
 

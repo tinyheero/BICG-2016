@@ -96,10 +96,10 @@ with Sentinal('get_data') as sentinal:
 
             subprocess.check_call(['gunzip', filename])
 
-        utils.rmtree(tophat_fusion_info.blast_human_directory)
-        utils.makedirs(tophat_fusion_info.blast_human_directory)
+        utils.rmtree(tophat_fusion_info.blast_directory)
+        utils.makedirs(tophat_fusion_info.blast_directory)
 
-        with utils.CurrentDirectory(tophat_fusion_info.blast_human_directory):
+        with utils.CurrentDirectory(tophat_fusion_info.blast_directory):
 
             subprocess.check_call(['wget', 'ftp://ftp.ncbi.nlm.nih.gov/blast/db/human_genomic.*.tar.gz'])
             subprocess.check_call(['wget', 'ftp://ftp.ncbi.nlm.nih.gov/blast/db/nt.*.tar.gz'])
