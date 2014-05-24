@@ -38,8 +38,7 @@ with Sentinal('install') as sentinal:
 
             with utils.CurrentDirectory(os.path.join(defuse_info.bin_directory)):
 
-                utils.symlink(os.path.join(extract_dir, 'scripts', 'defuse.pl'))
-                utils.symlink(os.path.join(extract_dir, 'scripts', 'create_reference_dataset.pl'))
+                utils.symlink(os.path.join(extract_dir, 'scripts'))
 
             template_config_filename = os.path.join(extract_dir, 'scripts', 'config.txt')
 
