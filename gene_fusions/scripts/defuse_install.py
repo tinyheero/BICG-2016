@@ -36,10 +36,14 @@ with Sentinal('install') as sentinal:
 
                 subprocess.check_call(['make'])
 
-            config_filename = os.path.join(defuse_info.data_directory, 'config.txt')
+            with utils.CurrentDirectory(os.path.join(defuse_info.bin_directory)):
+
+                utils.symlink(os.path.join(extract_dir, 'scripts', 'defuse.pl'))
+                utils.symlink(os.path.join(extract_dir, 'scripts', 'create_reference_dataset.pl'))
+
             template_config_filename = os.path.join(extract_dir, 'scripts', 'config.txt')
 
-            with open(config_filename, 'w') as config_file, open(template_config_filename, 'r') as template_config_file:
+            with open(defuse_info.config_filename, 'w') as config_file, open(template_config_filename, 'r') as template_config_file:
 
                 for line in template_config_file:
                     if not line.startswith('#') and '=' in line:
@@ -56,3 +60,12 @@ with Sentinal('install') as sentinal:
                     
                     config_file.write(line)
                     
+
+with Sentinal('createref') as sentinal:
+
+    if sentinal.unfinished:
+
+        with utils.CurrentDirectory(defuse_info.packages_directory):
+
+            subprocess.check_call([defuse_info.createref_script, '-c', defuse_info.config_filename])
+
