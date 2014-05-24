@@ -51,7 +51,7 @@ with Sentinal('install') as sentinal:
                         value = value.strip()
 
                         if key == 'source_directory':
-                            line = 'source_director = {0}\n'.format(extract_dir)
+                            line = 'source_directory = {0}\n'.format(extract_dir)
                         elif key == 'dataset_directory':
                             line = 'dataset_directory = {0}\n'.format(defuse_info.data_directory)
                         elif '[path of your' in value:
