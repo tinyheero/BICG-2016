@@ -8,7 +8,7 @@ import info
 import defuse_info
 
 
-Sentinal = utils.Sentinal(os.path.join(defuse_directory, 'sentinal_'))
+Sentinal = utils.Sentinal(os.path.join(defuse_info.results_directory, 'sentinal_'))
 
 
 def results_directory(sample_id):
