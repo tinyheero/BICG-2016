@@ -17,3 +17,5 @@ ensembl_chromosome_url = 'ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapien
 ensembl_chromosome_fasta = os.path.join(data_directory, 'Homo_sapiens.GRCh37.75.dna.chromosome.{0}.fa')
 ensembl_genome_fasta = os.path.join(data_directory, 'Homo_sapiens.GRCh37.75.dna.chromosomes.fa')
 
+ensembl_gtf_url = 'ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz'
+ensembl_gtf_filename = os.path.join(data_directory, 'Homo_sapiens.GRCh37.75.gtf')

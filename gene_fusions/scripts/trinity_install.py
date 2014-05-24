@@ -72,3 +72,23 @@ with Sentinal('gmap_build') as sentinal:
         subprocess.check_call(['gmap_build', '-D', trinity_info.gmap_index_directory, '-d', 'chr20', trinity_info.ensembl_genome_fasta])
 
 
+with Sentinal('download_gtf_data') as sentinal:
+
+    if sentinal.unfinished:
+
+        temp_gtf_filename = trinity_info.ensembl_gtf_filename+'.tmp'
+
+        utils.wget_file(trinity_info.ensembl_gtf_url, temp_gtf_filename+'.gz')
+        subprocess.check_call(['gunzip', temp_gtf_filename+'.gz'])
+
+        with open(temp_gtf_filename, 'r') as temp_gtf_file, open(trinity_info.ensembl_gtf_filename, 'w') as gtf_file:
+
+            for line in temp_gtf_file:
+
+                chromosome = line.split()[0]
+
+                if chromosome in info.chromosomes:
+                    gtf_file.write(line)
+
+        os.remove(temp_gtf_filename)
+
