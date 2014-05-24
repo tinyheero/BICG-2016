@@ -5,12 +5,8 @@ import subprocess
 
 import utils
 import info
+import defuse_info
 
-
-defuse_script = '/Users/amcphers/Projects/defuse/scripts/defuse.pl'
-defuse_config = '/Users/amcphers/Scratch/defuse_dataset/config.txt'
-
-defuse_directory = os.path.join(info.results_directory, 'defuse')
 
 Sentinal = utils.Sentinal(os.path.join(defuse_directory, 'sentinal_'))
 
@@ -26,8 +22,8 @@ for sample_id in info.rnaseq_samples:
         if sentinal.unfinished:
 
             utils.makedirs(results_directory(sample_id))
-            subprocess.check_call([defuse_script,
-                                   '-c', defuse_config,
+            subprocess.check_call([defuse_info.defuse_script,
+                                   '-c', defuse_info.config_filename,
                                    '-1', info.fastq_filename(sample_id, '1'),
                                    '-2', info.fastq_filename(sample_id, '2'),
                                    '-o', results_directory(sample_id)])
