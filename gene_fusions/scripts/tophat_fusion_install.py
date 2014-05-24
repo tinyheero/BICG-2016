@@ -3,6 +3,7 @@ import shutil
 import os
 import sys
 import subprocess
+import tarfile
 
 import utils
 import info
@@ -40,22 +41,46 @@ with Sentinal('install') as sentinal:
                 utils.symlink(os.path.join(extract_dir, 'tophat2'))
                 utils.symlink(os.path.join(extract_dir, 'tophat-fusion-post'))
 
-            if 'darwin' in sys.platform:
-                package_name = 'cufflinks-2.2.1.OSX_x86_64'
-            elif 'linux' in sys.platform:
-                package_name = 'cufflinks-2.2.1.Linux_x86_64'
 
-            subprocess.check_call('wget --no-check-certificate http://cufflinks.cbcb.umd.edu/downloads/{0}.tar.gz'.format(package_name).split(' '))
+with Sentinal('download_genome_data') as sentinal:
 
-            subprocess.check_call('tar -xzvf {0}.tar.gz'.format(package_name).split(' '))
+    if sentinal.unfinished:
 
-            extract_dir = os.path.join(tophat_fusion_info.packages_directory, package_name)
+        utils.wget_file(tophat_fusion_info.ensembl_gtf_url, tophat_fusion_info.ensembl_gtf_filename+'.gz')
+        subprocess.check_call(['gunzip', tophat_fusion_info.ensembl_gtf_filename+'.gz'])
 
-            with utils.CurrentDirectory(tophat_fusion_info.bin_directory):
+        utils.wget_file(tophat_fusion_info.ucsc_genome_url, tophat_fusion_info.ucsc_genome_tar_filename)
 
-                utils.symlink(os.path.join(extract_dir, 'cufflinks'))
-                utils.symlink(os.path.join(extract_dir, 'cuffnorm'))
-                utils.symlink(os.path.join(extract_dir, 'gffread'))
+
+with Sentinal('prepare_genome_data') as sentinal:
+
+    if sentinal.unfinished:
+
+        with open(tophat_fusion_info.ucsc_genome_fasta, 'w') as fasta_file, tarfile.open(tophat_fusion_info.ucsc_genome_tar_filename, 'r:gz') as tar:
+
+            for tarinfo in tar:
+
+                chromosome = tarinfo.name[3:-3]
+
+                if chromosome in info.chromosomes:
+                    shutil.copyfileobj(tar.extractfile(tarinfo), fasta_file)
+
+        with open(tophat_fusion_info.ensembl_gtf_filename, 'r') as ensembl_gtf_file, open(tophat_fusion_info.ucsc_gtf_filename, 'w') as ucsc_gtf_file:
+
+            for line in ensembl_gtf_file:
+
+                chromosome = line.split()[0]
+
+                if chromosome in info.chromosomes:
+                    ucsc_gtf_file.write('chr'+line)
+
+
+with Sentinal('bowtie_index') as sentinal:
+
+    if sentinal.unfinished:
+
+        subprocess.check_call(['bowtie-build', tophat_fusion_info.ucsc_genome_fasta, tophat_fusion_info.ucsc_genome_base])
+        subprocess.check_call(['bowtie2-build', tophat_fusion_info.ucsc_genome_fasta, tophat_fusion_info.ucsc_genome_base])
 
 
 with Sentinal('get_data') as sentinal:

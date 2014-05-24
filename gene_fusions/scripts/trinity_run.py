@@ -41,7 +41,7 @@ for sample_id in info.rnaseq_samples:
 
                 subprocess.check_call(['gmap',
                                        '-f', 'gff3_gene',
-                                       '-D', info.gmap_index_directory,
+                                       '-D', trinity_info.gmap_index_directory,
                                        '-d', 'chr20',
                                        contig_fasta],
                                       stdout=contig_mapping_file)

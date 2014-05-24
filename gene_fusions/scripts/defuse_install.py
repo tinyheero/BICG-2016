@@ -44,7 +44,7 @@ with Sentinal('install') as sentinal:
                         elif key == 'dataset_directory':
                             line = 'dataset_directory = {0}\n'.format(defuse_info.data_directory)
                         elif key == 'chromosomes':
-                            line = 'chromosomes = 20\n'
+                            line = 'chromosomes = {0}\n'.format(' '.join(info.chromosomes))
                         elif '[path of your' in value:
                             line = '{0} = {1}\n'.format(key, value.split(' ')[3])
                     

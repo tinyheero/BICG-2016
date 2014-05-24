@@ -14,65 +14,6 @@ utils.makedirs(info.data_directory)
 Sentinal = utils.Sentinal(os.path.join(info.data_directory, 'sentinal_'))
 
 
-with Sentinal('download_ensembl_gtf') as sentinal:
-
-    if sentinal.unfinished:
-
-        utils.wget_file(info.ensembl_gtf_url, info.ensembl_gtf_filename+'.gz')
-        subprocess.check_call(['gunzip', info.ensembl_gtf_filename+'.gz'])
-
-
-with Sentinal('download_ensembl_chr20') as sentinal:
-
-    if sentinal.unfinished:
-
-        utils.wget_file(info.ensembl_chr20_url, info.ensembl_chr20_filename+'.gz')
-        subprocess.check_call(['gunzip', info.ensembl_chr20_filename+'.gz'])
-
-
-with Sentinal('gmap_build_chr20') as sentinal:
-
-    if sentinal.unfinished:
-
-        utils.makedirs(info.gmap_index_directory)
-        subprocess.check_call(['gmap_build', '-D', info.gmap_index_directory, '-d', 'chr20', info.ensembl_chr20_filename])
-
-
-with Sentinal('download_hg19') as sentinal:
-
-    if sentinal.unfinished:
-
-        utils.wget_file(info.hg19_url, info.hg19_tar_filename)
-
-
-with Sentinal('extract_hg19') as sentinal:
-
-    if sentinal.unfinished:
-
-        with open(info.hg19_filename, 'w') as hg19_file, tarfile.open(info.hg19_tar_filename, 'r:gz') as tar:
-
-            for tarinfo in tar:
-
-                chromosome = tarinfo.name[3:-3]
-
-                if chromosome in info.chromosomes:
-                    shutil.copyfileobj(tar.extractfile(tarinfo), hg19_file)
-
-
-with Sentinal('bowtie_index_hg19') as sentinal:
-
-    if sentinal.unfinished:
-
-        subprocess.check_call(['bowtie-build', info.hg19_filename, info.hg19_index_base])
-
-
-with Sentinal('bowtie2_index_hg19') as sentinal:
-
-    if sentinal.unfinished:
-
-        subprocess.check_call(['bowtie2-build', info.hg19_filename, info.hg19_index_base])
-
-
 for sra_id in info.sra_samples:
 
     with Sentinal('download_'+sra_id) as sentinal:
