@@ -160,6 +160,10 @@ The final intersting file that OncoSNP produces is the plots HCC1143.ps.gz.  Sin
 
 The workflow for WGSS data is not dramatically different. We still need to do some normalisation and B allele extraction.
 
+
+    ln -s /home/ubuntu/CourseData/CG_data/TCGA/HCC1143/
+
+
 ### 
 
 # As a first step we will create a folder to work in.
