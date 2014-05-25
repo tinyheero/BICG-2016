@@ -69,7 +69,7 @@ with Sentinal('gmap_build') as sentinal:
     if sentinal.unfinished:
 
         utils.makedirs(trinity_info.gmap_index_directory)
-        subprocess.check_call(['gmap_build', '-D', trinity_info.gmap_index_directory, '-d', 'chr20', trinity_info.ensembl_genome_fasta])
+        subprocess.check_call(['gmap_build', '-D', trinity_info.gmap_index_directory, '-d', 'hg19', trinity_info.ensembl_genome_fasta])
 
 
 with Sentinal('download_gtf_data') as sentinal:
