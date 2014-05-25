@@ -77,12 +77,12 @@ Two major systematic biases in whole genome sequence data are due to sequence ma
 
 To calculate GC for chromosome 21, run HMMCopy's `gcCounter` tool.
 
-    $HMMCOPY_DIR/bin/gcCounter Homo_sapiens_assembly19.fasta > hg19.21.gc.wig
+    $HMMCOPY_DIR/bin/gcCounter -c 21 Homo_sapiens_assembly19.fasta > hg19.21.gc.wig
 
 Mappability information can be downloaded from ucsc in the form of a mappability bigWig file.  Run HMMCopy's `mapCounter` to convert to HMMCopy format.
 
     wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeMapability/wgEncodeCrgMapabilityAlign100mer.bigWig
-    $HMMCOPY_DIR/bin/mapCounter wgEncodeCrgMapabilityAlign100mer.bigWig > hg19.21.map.wig
+    $HMMCOPY_DIR/bin/mapCounter -c chr21 wgEncodeCrgMapabilityAlign100mer.bigWig > hg19.21.map.wig
 
 Finished working in the genome directory.
 
@@ -113,16 +113,32 @@ The `.tdf` calculates read depth that igv displays as a histogram.
 
 ## Calculate read depth for HMMCopy
 
-Copy number prediction is based on read depth.  Calculate read depth for the tumour and normal bam files and store in `.wig` format.
+Copy number prediction is based on read depth.  Calculate read depth for the tumour and normal bam files and store in `.wig` format.  Specify chromosome 21.
 
-    $HMMCOPY_DIR/bin/readCounter G15511.HCC1143.1.chr21.bam > G15511.HCC1143.1.chr21.wig
-    $HMMCOPY_DIR/bin/readCounter G15511.HCC1143_BL.1.chr21.bam > G15511.HCC1143_BL.1.chr21.wig
+    $HMMCOPY_DIR/bin/readCounter -c 21 G15511.HCC1143.1.chr21.bam > G15511.HCC1143.1.chr21.wig
+    $HMMCOPY_DIR/bin/readCounter -c 21 G15511.HCC1143_BL.1.chr21.bam > G15511.HCC1143_BL.1.chr21.wig
 
 ## Convert to pileup
 
 
+    samtools mpileup G15511.HCC1143_BL.1.chr21.bam > G15511.HCC1143_BL.1.chr21.pileup
+    samtools mpileup G15511.HCC1143.1.chr21.bam > G15511.HCC1143.1.chr21.pileup
 
 
+## OncoSNP-Seq setup
+
+    mkdir -p genome/oncoseq
+    cd genome/oncoseq
+
+Download dbSNP for chromosome 21 and extract.
+
+    wget ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/BED/bed_chr_21.bed.gz
+    gunzip bed_chr_21.bed.gz
+
+Download the GC content files from the [OncoSNP-SEQ google sites page](https://sites.google.com/site/oncosnpseq/downloads).  If the following wget does not work, download using your browser.
+
+    wget --no-check-certificate "https://doc-08-7c-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/b3vbuuo4e743kg87p1qehbamqsft7lpo/1401026400000/03938588792210094527/*/0B_XFGmx3odi4MzlPTjhqTlktS3c?h=16653014193614665626&e=download" -O b37.tar.gz
+    tar -xzvf b37.tar.gz
 
 
 
