@@ -42,6 +42,9 @@ with Sentinal('install') as sentinal:
                 utils.symlink(os.path.join(extract_dir, 'tophat-fusion-post'))
 
 
+utils.makedirs(tophat_fusion_info.data_directory)
+
+
 with Sentinal('download_genome_data') as sentinal:
 
     if sentinal.unfinished:
@@ -87,13 +90,9 @@ with Sentinal('get_data') as sentinal:
 
     if sentinal.unfinished:
 
-        utils.rmtree(tophat_fusion_info.data_directory)
-        utils.makedirs(tophat_fusion_info.data_directory)
-        
         for url, filename in ((tophat_fusion_info.ref_gene_url, tophat_fusion_info.ref_gene_filename), (tophat_fusion_info.ens_gene_url, tophat_fusion_info.ens_gene_filename)):
 
             subprocess.check_call(['wget', url, '-O', filename+'.gz'])
-
             subprocess.check_call(['gunzip', filename])
 
         utils.rmtree(tophat_fusion_info.blast_directory)
