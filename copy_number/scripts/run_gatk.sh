@@ -5,13 +5,13 @@
 # The output file can also be used to do naive somatic mutation calling.
 # WE WILL NOT RUN THIS DURING THE TUTORIAL BECAUSE IT IS A BIT SLOW
 
-ref=/home/ubuntu/CourseData/CG_data/Module5/genome/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa # Reference genome
+ref=/home/ubuntu/CourseData/CG_data/Module5/genome/Homo_sapiens_assembly19.fasta # Reference genome
 
 normalBam=/home/ubuntu/CourseData/CG_data/TCGA/HCC1143/G15511.HCC1143_BL.1.chr21.bam # Normal BAM File
 
 tumourBam=/home/ubuntu/CourseData/CG_data/TCGA/HCC1143/G15511.HCC1143.1.chr21.bam # Tumour BAM File
 
-outFile=/home/ubuntu/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.new.vcf 
+outFile=/home/ubuntu/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.vcf 
 
 ######### EXECUTE GATK UNIFIED GENOTYPER ###################################################
 ######### Requires Java to be installed ####################################################
