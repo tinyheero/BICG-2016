@@ -5,6 +5,7 @@ execfile('setup.config', config)
 
 tutorial_directory = config['tutorial_directory']
 chromosomes = config['chromosomes']
+run_samples = config['run_samples']
 
 data_directory = os.path.join(tutorial_directory, 'data')
 install_directory = os.path.join(tutorial_directory, 'install')
@@ -21,7 +22,7 @@ sra_samples = ['SRR064439', 'SRR201779']
 sim_samples = ['SIM001']
 sim_seeds = [2014]
 
-rnaseq_samples = sim_samples + sra_samples
+rnaseq_samples = run_samples
 
 
 def sample_dir(sample_id):
