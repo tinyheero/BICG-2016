@@ -65,7 +65,7 @@ class CurrentDirectory(object):
 
 def wget_file(url, filename):
     makedirs(os.path.dirname(filename))
-    subprocess.check_call(['wget', url, '-O', filename])
+    subprocess.check_call(['wget', '--no-check-certificate', url, '-O', filename])
 
 
 def download_single_sra_dataset(sra_id, output_dir):
