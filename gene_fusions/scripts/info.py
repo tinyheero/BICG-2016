@@ -10,6 +10,12 @@ data_directory = os.path.join(tutorial_directory, 'data')
 install_directory = os.path.join(tutorial_directory, 'install')
 results_directory = os.path.join(tutorial_directory, 'results')
 
+ensembl_gtf_url = 'ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz'
+ensembl_chr20_url = 'ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.chromosome.20.fa.gz'
+
+ensembl_gtf_filename = os.path.join(genome_directory, 'Homo_sapiens.GRCh37.75.gtf')
+ensembl_chr20_filename = os.path.join(genome_directory, 'Homo_sapiens.GRCh37.75.dna.chromosome.20.fa')
+
 sra_samples = ['SRR064439', 'SRR201779']
 
 sim_samples = ['SIM001']

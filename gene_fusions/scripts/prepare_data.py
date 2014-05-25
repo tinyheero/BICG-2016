@@ -29,6 +29,22 @@ for sra_id in info.sra_samples:
             utils.extract_single_sra_dataset(sra_id, os.path.join(info.data_directory, sra_id))
 
 
+with Sentinal('download_ensembl_gtf') as sentinal:
+
+    if sentinal.unfinished:
+
+        utils.wget_file(info.ensembl_gtf_url, info.ensembl_gtf_filename+'.gz')
+        subprocess.check_call(['gunzip', info.ensembl_gtf_filename+'.gz'])
+
+
+with Sentinal('download_ensembl_chr20') as sentinal:
+
+    if sentinal.unfinished:
+
+        utils.wget_file(info.ensembl_chr20_url, info.ensembl_chr20_filename+'.gz')
+        subprocess.check_call(['gunzip', info.ensembl_chr20_filename+'.gz'])
+
+
 def create_simulated_rnaseq(sample_id, sim_seed):
 
     num_fusions = 10
