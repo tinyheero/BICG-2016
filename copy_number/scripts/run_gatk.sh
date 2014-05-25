@@ -5,13 +5,13 @@
 # The output file can also be used to do naive somatic mutation calling.
 # WE WILL NOT RUN THIS DURING THE TUTORIAL BECAUSE IT IS A BIT SLOW
 
-ref=/home/ubuntu/CourseData/CG_data/Module5/data/fasta/Homo_sapiens_assembly19.fasta  # Reference genome
+ref=/home/ubuntu/CourseData/CG_data/Module5/genome/Homo_sapiens_assembly19.fasta # Reference genome
 
-normalBam=/home/ubuntu/CourseData/CG_data/Module5/data/bam/HCC1143.normal.21.bam # Normal BAM File
+normalBam=/home/ubuntu/CourseData/CG_data/TCGA/HCC1143/G15511.HCC1143_BL.1.chr21.bam # Normal BAM File
 
-tumourBam=/home/ubuntu/CourseData/CG_data/Module5/data/HCC1143.tumour.21.bam # Tumour BAM File
+tumourBam=/home/ubuntu/CourseData/CG_data/TCGA/HCC1143/G15511.HCC1143.1.chr21.bam # Tumour BAM File
 
-outFile=/home/ubuntu/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.new.vcf 
+outFile=/home/ubuntu/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.vcf 
 
 ######### EXECUTE GATK UNIFIED GENOTYPER ###################################################
 ######### Requires Java to be installed ####################################################
@@ -20,4 +20,4 @@ outFile=/home/ubuntu/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.new.vcf
 ######### -L specifies the region we want to analyse. We just pass 21 to specify all of chromosome 21
 ######### -I specifies input BAM filename
 ######### -baq RECALCULATE specifies we want to recalculate the base scores
-java -jar ~/Documents/teaching/cbw/2013/install/src/GATK/GenomeAnalysisTK.jar -R $ref -T UnifiedGenotyper -baq RECALCULATE -L 21 -I $normalBam -I $tumourBam -o $outFile
+java -jar /usr/local/GATK/GenomeAnalysisTK.jar -R $ref -T UnifiedGenotyper -baq RECALCULATE -L 21 -I $normalBam -I $tumourBam -o $outFile

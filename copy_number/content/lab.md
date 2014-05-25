@@ -28,6 +28,12 @@ Enter the Module5 directory
 
     cd Module5/
 
+
+Link to the scripts
+
+
+
+
 ## SNP6.0 Analysis
 
 ### Fetch Array Data
@@ -160,110 +166,91 @@ The final intersting file that OncoSNP produces is the plots HCC1143.ps.gz.  Sin
 
 The workflow for WGSS data is not dramatically different. We still need to do some normalisation and B allele extraction.
 
-### 
+The dataset we will be using is a breast cancer cell line sequenced by the TCGA.  The data has been downloaded and partially processed for you (See data preparation).
 
-# As a first step we will create a folder to work in.
-mkdir ../data/hmmcopy
+    ln -s /home/ubuntu/CourseData/CG_data/TCGA/HCC1143/
 
-# I have written an R script to run HMM copy. Take a look at it.
-cd hmmcopy
+It is very important that we use the same genome fasta as was used to generate the bams.  The genome fasta has been downloaded for you.
 
-less -S run.R
+    ln -s /home/ubuntu/CourseData/CG_data/Module5/genome/
 
-# HMMcopy requires several input files all in .wig format. For most analyses
-# you can use the GC content and mappability files on the HMMcopy website. 
-# For this lab I needed to create special ones since we are working with chr21.
-# We can take a look at these files.
-less -S ~/CourseData/CG_data/Module5/data/wig/hg19.21.gc.wig
+### HMMCopy for total copy number
 
-less -S ~/CourseData/CG_data/Module5/data/wig/hg19.21.map.wig
+HMMcopy requires several input files all in .wig format. For most analyses you can use the GC content and mappability files on the HMMcopy website.  For this lab we have created versions for chr21.
 
-# When you do your own analysis you will need to create .wig files for the 
-# tumour and normal data. The following commands would do that. They take some
-# time so we WILL NOT execute them.
-/usr/local/HMMcopy/bin/readCounter ~/CourseData/CG_data/Module5/data/bam/HCC1143.normal.21.bam -c 21 > ../../data/hmmcopy/HCC1143.normal.21.wig
+    less -S /home/ubuntu/CourseData/CG_data/Module5/genome/hg19.21.gc.wig
+    less -S /home/ubuntu/CourseData/CG_data/Module5/genome/hg19.21.map.wig
 
-/usr/local/HMMcopy/bin/readCounter ~/CourseData/CG_data/Module5/data/bam/HCC1143.tumour.21.bam -c 21 > ../../data/hmmcopy/HCC1143.tumour.21.wig
+HMMCopy also requires read depth for tumour and normal data.  These are obtained by counting reads overlapping 1000bp segments in the human genome. 
 
-# The R script we will launch will point to pre-compute version of these. But
-# for your own analyses you need to change this. To execute the R script start
-# R.
-R
+    less -S /home/ubuntu/CourseData/CG_data/Module5/HCC1143/G15511.HCC1143.1.chr21.wig
+    less -S /home/ubuntu/CourseData/CG_data/Module5/HCC1143/G15511.HCC1143_BL.1.chr21.wig
 
-# In the R environment load and execute the script.
-source('run.R')
+An R script is provided to run HMMCopy.  
 
-# When it finishes quit R
-quit()
+    less -S scripts/run.R
 
-# Now we can look at the output
-cd ../../data/hmmcopy
+Start R,
 
-ls -lh
+    R
 
-# There are two directories. results/ contains the segment files. plots/ contains
-# the various plots generated. Of particular use is the .igv.seg file which can
-# be loaded into IGV. I've uploaded a version to the wiki which you cna download 
-# on your own computer.
-less -S results/tumour.igv.seg
+and use the source function to execute the script.  Then quit.
 
-# The plots file are in the scripts you downloaded earlier under figures/hmmcopy.
+    source('scripts/hmmcopy/run.R')
+    quit()
 
-# To do extract BAF data you need to do two steps. The first is to run GATK
-# or some other program to call heterozygous SNP positions in the normal.
-# The second is to extract the count data in the tumour at these positions.
-# I have included a script run_gatk.sh to do step 1 and Python script
-# build_apolloh_allelic_counts_file.py do to step 2.
-# DO NOT RUN THIS STEP
-cd ../../scripts 
+The `run.R` script will create two directories: `results/hmmcopy/results` containts the segment files and `results/hmmcopy/plots` contains the various plots generated.  The `.igv.seg` segment file can be loaded into IGV.
 
-# You would need to edit this script toNormal cell contamination point to your own files
-./run_gatk
+    less -S results/hmmcopy/results/tumour.igv.seg
 
-# This would create a file, ../data/baf.txt, with the allelic counts for APOLLOH.
-python build_apolloh_allelic_counts_file.py ~/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.vcf ../data/baf.txt --normal_column 1
+<!-- The plots file are in the scripts you downloaded earlier under figures/hmmcopy. -->
 
-################################################################################
-# Part 3.2 - CNV Analysis
-#
-# Though HMMCopy gives total copy number information, it does not give any 
-# information about LOH. To get this we will use APOLLOH.
-################################################################################
-# The run_appoloh.sh script will do an APOLLOH analysis. We will use 
-# pre-computed inputs.
-less -S run_apolloh.sh
+### APOLLOH for allele specific copy number
 
-# File produced by python build_apolloh_allelic_counts_file.py
-less -S ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.allelic_counts.tsv
+To obtain BAF data from bam files, we first need to run a genotyper to call heterozygous SNP positions in the normal.  GATK has been run for you (see data preparation).  The output of GATK is a VCF file.
 
-# File produce by HMMcopy
-less -S ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.copy_number.seg
+    less -S data/vcf/HCC1143.GATK.vcf
 
-# We will run APOLLOH now
-mkdir ../data/apolloh
+Given heterozygous SNPs, we now need to extract the reference and alternate allele counts from the bam file.  The script `build_apolloh_allelic_counts_file.py` does this for you.
 
-./run_apolloh.sh ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.allelic_counts.tsv ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.copy_number.seg ../data/apolloh
+    mkdir -p data/apolloh
+    python scripts/build_apolloh_allelic_counts_file.py data/vcf/HCC1143.GATK.vcf data/apolloh/baf.txt --normal_column 1
 
-# Now we can examine the output
-cd ../data/apolloh
+The BAF file is a tab delimited file with one row per SNP.
 
-# There are three files. params.txt contains the APOLLOH model paramters. Most
-# interesting Normal cell contamination
-less -S params.txt
+    less -S data/apolloh/baf.txt
 
-# The loh.txt file contains information about the state of each SNP
-less -S loh.txt
+We are now in a position to run APOLLOH.
 
-# The segs.txt contains information about the segments.
-less -S segs.txt
+    mkdir -p results/apolloh
+    bash scripts/run_apolloh.sh data/apolloh/baf.txt results/hmmcopy/results/tumour.apolloh.seg results/apolloh/
 
-################################################################################
-# Part 4 - Visualissing Datasets In IGV
-#
-# For this part please download the METABRIC dataset from the wiki and open it
-# in IGV.
-################################################################################
+There are three files. params.txt contains the APOLLOH model paramters. Most interesting Normal cell contamination
+
+The `params.txt` file contains the APOLLOH model parameters.
+
+    less -S results/apolloh/params.txt
+
+The `loh.txt` file contains information about the state of each SNP.
+
+    less -S loh.txt
+
+The `segs.txt` contains information about the segments.
+
+    less -S segs.txt
+
+
+### OncoSNP-SEQ 
 
 
 
+    perl /usr/local/oncosnpseq/scripts/process_pileup.pl --infile HCC1143/G15511.HCC1143.1.chr21.pileup  --outfile test --snpfile genome/oncoseq/bed_chr_21.bed
+    perl /usr/local/oncosnpseq/scripts/process_pileup.pl --infile HCC1143/G15511.HCC1143.1.chr21.pileup  --outfile test --snpfile genome/oncoseq/bed_chr_21.bed
+
+
+
+
+## Visualizing Datasets In IGV
+
+For this part please download the METABRIC dataset from the wiki and open it in IGV.
 

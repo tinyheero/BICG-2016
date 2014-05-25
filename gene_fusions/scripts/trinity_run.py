@@ -24,7 +24,7 @@ for sample_id in info.rnaseq_samples:
 
             subprocess.check_call([trinity_info.trinity_bin,
                                    '--seqType', 'fq',
-                                   '--JM', '32G',
+                                   '--JM', '12G',
                                    '--CPU', '4',
                                    '--left', info.fastq_filename(sample_id, '1'),
                                    '--right', info.fastq_filename(sample_id, '2'),

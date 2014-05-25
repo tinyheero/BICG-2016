@@ -13,5 +13,7 @@ with open(conf_filename, 'w') as conf_file:
     conf_file.write('tutorial_directory = \n')
     conf_file.write('# Set of chromosomes to analyze\n')
     conf_file.write('chromosomes = \n')
+    conf_file.write('# Set of samples to analyze\n')
+    conf_file.write('run_samples = []\n')
 
 print 'Edit configuration file ' + conf_filename + ' to complete the setup.'
