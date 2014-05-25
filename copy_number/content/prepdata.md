@@ -5,6 +5,13 @@
 
 This lab uses a number of publically available datasets.  Below we give details about how to obtain these datasets.  We also include instructions for the time intensive processing has been applied to these datasets prior to the lab.  The instructions below will not be needed during the lab, they are included for reference purposes in case you wish to reproduce the lab in your own time.
 
+## Environment
+
+The following environment variables are required.
+
+`PICARD_DIR=/usr/local/picard` picard tools binaries directory
+`HMMCOPY_DIR=/usr/local/HMMcopy` hmm copy binaries directory
+
 ## SNP6.0 HCC1143 cell line data
 
 The cel files containing the probe intensity data for cell line HCC1143 can be downloaded as follows.
@@ -16,7 +23,7 @@ The cel files containing the probe intensity data for cell line HCC1143 can be d
     gunzip *.gz
     cd ../..
 
-## Obtaining whole genome sequencing HCC1143 cell line data
+## Whole genome sequencing HCC1143 cell line data
 
 The WGS HCC1143 cell line data can be downloaded from the [TCGA benchmarking website](https://cghub.ucsc.edu/datasets/benchmark_download.html).  The downloading instructions on the website are reproduced here.
 
@@ -41,17 +48,59 @@ The files will appear in two subdirectories named after the uuid for each datase
     mv ad3d4757-f358-40a3-9d92-742463a95e88/* HCC1143
     mv f0eaa94b-f622-49b9-8eac-e4eac6762598/* HCC1143
 
+## Whole genome sequencing reference genome
+
+Whole genome reference data will be stored in the `genome` directory.
+
+    mkdir genome
+    cd genome
+
+The reference genome fasta file *must* match the reference genome which was used to create the HCC1143 bam files.  Conventiently the url is stored in the bam header.
+
+    samtools view -H ../HCC1143/G15511.HCC1143.1.chr21.bam
+
+Download the genome fasta.  Also create a fasta index using samtools and 
+
+    wget http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta
+
+Create a samtools fasta index for constant time lookup into the sequence.
+
+    samtools faidx Homo_sapiens_assembly19.fasta
+
+Create a dict file for use with the GATK.
+
+    java -jar $PICARD_DIR/CreateSequenceDictionary.jar R=Homo_sapiens_assembly19.fasta O=Homo_sapiens_assembly19.dict
+
+## HMMCopy genome setup
+
+Two major systematic biases in whole genome sequence data are due to sequence mappability and GC content.  For HMMCopy we need to precalculate the GC content and mappability accross each chromosome.  
+
+To calculate GC for chromosome 21, run HMMCopy's `gcCounter` tool.
+
+    $HMMCOPY_DIR/bin/gcCounter Homo_sapiens_assembly19.fasta > hg19.21.gc.wig
+
+Mappability information can be downloaded from ucsc in the form of a mappability bigWig file.  Run HMMCopy's `mapCounter` to convert to HMMCopy format.
+
+    wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeMapability/wgEncodeCrgMapabilityAlign100mer.bigWig
+    $HMMCOPY_DIR/bin/mapCounter wgEncodeCrgMapabilityAlign100mer.bigWig > hg19.21.map.wig
+
+Finished working in the genome directory.
+
+    cd ..
+
+## Extract chromosome 21 alignments
+
 The next few steps will manipulate the HCC1143 bam files.
 
     cd HCC1143
 
-### Extract chromosome 21 
+We will focus on a single chromosome in this lab as the whole genome analysis is too time consuming.  Extract chromosome 21 using samtools.
 
-We will focus on a single chromosome in this lab as the whole genome analysis is too time consuming.  Extract chromosome 21 using samtools and index the bam files.
+    samtools view -b G15511.HCC1143.1.bam 21 > G15511.HCC1143.1.chr21.bam
+    samtools view -b G15511.HCC1143_BL.1.bam 21 > G15511.HCC1143_BL.1.chr21.bam
 
-    samtools view -b G15511.HCC1143.1.bam 20 > G15511.HCC1143.1.chr21.bam
-    samtools view -b G15511.HCC1143_BL.1.bam 20 > G15511.HCC1143_BL.1.chr21.bam
-    
+Use samtools to index the bam files.
+
     samtools index G15511.HCC1143.1.chr21.bam
     samtools index G15511.HCC1143_BL.1.chr21.bam
 
@@ -66,10 +115,13 @@ The `.tdf` calculates read depth that igv displays as a histogram.
 
 Copy number prediction is based on read depth.  Calculate read depth for the tumour and normal bam files and store in `.wig` format.
 
-    $HMMCOPY_DIR/readCounter G15511.HCC1143.1.chr21.bam > G15511.HCC1143.1.chr21.wig
-    $HMMCOPY_DIR/readCounter G15511.HCC1143_BL.1.chr21.bam > G15511.HCC1143_BL.1.chr21.wig
+    $HMMCOPY_DIR/bin/readCounter G15511.HCC1143.1.chr21.bam > G15511.HCC1143.1.chr21.wig
+    $HMMCOPY_DIR/bin/readCounter G15511.HCC1143_BL.1.chr21.bam > G15511.HCC1143_BL.1.chr21.wig
 
 ## Convert to pileup
+
+
+
 
 
 
