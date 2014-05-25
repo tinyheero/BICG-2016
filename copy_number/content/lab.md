@@ -156,6 +156,114 @@ We've included a script to parse this information out.
 
 The final intersting file that OncoSNP produces is the plots HCC1143.ps.gz.  Since I would like to avoid dealing with transfering from the cloud in this tutorial I have included a copy of the figure in scripts for this lab.  Download this file to your own computer decompress it. The plot is under figures/oncosnp.
 
+## Whole Genome Sequencing (WGS) Analysis
+
+The workflow for WGSS data is not dramatically different. We still need to do some normalisation and B allele extraction.
+
+### 
+
+# As a first step we will create a folder to work in.
+mkdir ../data/hmmcopy
+
+# I have written an R script to run HMM copy. Take a look at it.
+cd hmmcopy
+
+less -S run.R
+
+# HMMcopy requires several input files all in .wig format. For most analyses
+# you can use the GC content and mappability files on the HMMcopy website. 
+# For this lab I needed to create special ones since we are working with chr21.
+# We can take a look at these files.
+less -S ~/CourseData/CG_data/Module5/data/wig/hg19.21.gc.wig
+
+less -S ~/CourseData/CG_data/Module5/data/wig/hg19.21.map.wig
+
+# When you do your own analysis you will need to create .wig files for the 
+# tumour and normal data. The following commands would do that. They take some
+# time so we WILL NOT execute them.
+/usr/local/HMMcopy/bin/readCounter ~/CourseData/CG_data/Module5/data/bam/HCC1143.normal.21.bam -c 21 > ../../data/hmmcopy/HCC1143.normal.21.wig
+
+/usr/local/HMMcopy/bin/readCounter ~/CourseData/CG_data/Module5/data/bam/HCC1143.tumour.21.bam -c 21 > ../../data/hmmcopy/HCC1143.tumour.21.wig
+
+# The R script we will launch will point to pre-compute version of these. But
+# for your own analyses you need to change this. To execute the R script start
+# R.
+R
+
+# In the R environment load and execute the script.
+source('run.R')
+
+# When it finishes quit R
+quit()
+
+# Now we can look at the output
+cd ../../data/hmmcopy
+
+ls -lh
+
+# There are two directories. results/ contains the segment files. plots/ contains
+# the various plots generated. Of particular use is the .igv.seg file which can
+# be loaded into IGV. I've uploaded a version to the wiki which you cna download 
+# on your own computer.
+less -S results/tumour.igv.seg
+
+# The plots file are in the scripts you downloaded earlier under figures/hmmcopy.
+
+# To do extract BAF data you need to do two steps. The first is to run GATK
+# or some other program to call heterozygous SNP positions in the normal.
+# The second is to extract the count data in the tumour at these positions.
+# I have included a script run_gatk.sh to do step 1 and Python script
+# build_apolloh_allelic_counts_file.py do to step 2.
+# DO NOT RUN THIS STEP
+cd ../../scripts 
+
+# You would need to edit this script toNormal cell contamination point to your own files
+./run_gatk
+
+# This would create a file, ../data/baf.txt, with the allelic counts for APOLLOH.
+python build_apolloh_allelic_counts_file.py ~/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.vcf ../data/baf.txt --normal_column 1
+
+################################################################################
+# Part 3.2 - CNV Analysis
+#
+# Though HMMCopy gives total copy number information, it does not give any 
+# information about LOH. To get this we will use APOLLOH.
+################################################################################
+# The run_appoloh.sh script will do an APOLLOH analysis. We will use 
+# pre-computed inputs.
+less -S run_apolloh.sh
+
+# File produced by python build_apolloh_allelic_counts_file.py
+less -S ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.allelic_counts.tsv
+
+# File produce by HMMcopy
+less -S ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.copy_number.seg
+
+# We will run APOLLOH now
+mkdir ../data/apolloh
+
+./run_apolloh.sh ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.allelic_counts.tsv ~/CourseData/CG_data/Module5/data/apolloh_input/tumour.copy_number.seg ../data/apolloh
+
+# Now we can examine the output
+cd ../data/apolloh
+
+# There are three files. params.txt contains the APOLLOH model paramters. Most
+# interesting Normal cell contamination
+less -S params.txt
+
+# The loh.txt file contains information about the state of each SNP
+less -S loh.txt
+
+# The segs.txt contains information about the segments.
+less -S segs.txt
+
+################################################################################
+# Part 4 - Visualissing Datasets In IGV
+#
+# For this part please download the METABRIC dataset from the wiki and open it
+# in IGV.
+################################################################################
+
 
 
 
