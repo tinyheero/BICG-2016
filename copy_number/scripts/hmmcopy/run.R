@@ -3,6 +3,22 @@
 # Author: Andrew Roth
 ###############################################################################
 
+## Setup path and sample information
+
+# Set the directory where output will be placed
+output.dir <- file.path(normalizePath('./'), 'results', 'hmmcopy')
+
+# Name of sample we are analysing
+sample.id <- 'HCC1143'
+
+# Set the directory where the plots will be placed
+plot.dir <- file.path(output.dir, 'plots')
+
+# Set the directory where the results i.e. segment files will be placed
+results.dir <- file.path(output.dir, 'results')
+
+## Load the required utils
+
 # Set working directory to where script is being run
 setwd(dirname(sys.frame(1)$ofile))
 
@@ -11,47 +27,26 @@ source('../utils.R', chdir=TRUE)
 source('plot.R')
 source('utils.R')
 
-# Load library
+# Load HMMcopy library
 library(HMMcopy)
-
-## Setup path and sample information
-
-# Set the data directory
-data.dir <- '~/CourseData/CG_data/Module5/data'
-
-# Set the directory where output will be placed
-output.dir <- '~/workspace/Module5/hmmcopy'
-
-# Name of sample we are analysing
-sample.id <- 'HCC1143'
-
-# Set the directory containing the WIG files
-wig.dir <- file.path(data.dir, 'wig')
-
-# Set the directory where the plots will be placed
-plot.dir <- file.path(output.dir, 'plots')
-
-# Set the directory where the results i.e. segment files will be placed
-results.dir <- file.path(output.dir, 'results')
 
 # Make the plot and results directories.
 safe_make_dir(plot.dir)
-
 safe_make_dir(results.dir)
 
 #### Step 1 - Setup Input Files ####
 
 # Path to file with GC content for each bin in WIG format 
-gc.file <- file.path(wig.dir, 'hg19.21.gc.wig')
+gc.file <- '/home/ubuntu/CourseData/CG_data/Module5/genome/hg19.21.gc.wig'
 
 # Path to file with mappability scores for each bin in WIG format.
-map.file <- file.path(wig.dir, 'hg19.21.map.wig')
+map.file <- '/home/ubuntu/CourseData/CG_data/Module5/genome/hg19.21.map.wig'
 
 # Path to file with normal read count data for each bin
-normal.reads.file <- file.path(wig.dir, 'HCC1143.normal.21.wig')
+normal.reads.file <- '/home/ubuntu/CourseData/CG_data/TCGA/HCC1143/G15511.HCC1143.1.chr21.wig'
 
 # Path to file with tumour read count data for each bin
-tumour.reads.file <- file.path(wig.dir, 'HCC1143.tumour.21.wig')
+tumour.reads.file <- '/home/ubuntu/CourseData/CG_data/TCGA/HCC1143/G15511.HCC1143_BL.1.chr21.wig'
 
 #### Step 2 - Read data into RangedData objects ####
 
