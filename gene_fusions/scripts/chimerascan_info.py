@@ -20,7 +20,12 @@ chimerascan_index_bin = os.path.join(bin_directory, 'chimerascan_index.py')
 chimerascan_run_bin = os.path.join(bin_directory, 'chimerascan_run.py')
 
 
+ucsc_genome_url = 'ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz'
+ucsc_genome_tar_filename = os.path.join(data_directory, 'chromFa.tar.gz')
 reference_genome_fasta = os.path.join(data_directory, 'hg19.fa')
+
+
+gene_models_url = 'https://chimerascan.googlecode.com/files/hg19.ucsc'
 gene_models_filename = os.path.join(data_directory, 'hg19.ucsc_genes.txt')
 
 

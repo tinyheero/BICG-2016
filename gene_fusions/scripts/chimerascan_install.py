@@ -42,11 +42,19 @@ with Sentinal('get_data') as sentinal:
 
         with utils.CurrentDirectory(chimerascan_info.data_directory):
 
-            os.symlink(info.hg19_filename, chimerascan_info.reference_genome_fasta)
+            utils.wget_file(chimerascan_info.ucsc_genome_url, chimerascan_info.ucsc_genome_tar_filename)
 
-            subprocess.check_call('wget --no-check-certificate https://chimerascan.googlecode.com/files/hg19.ucsc_genes.txt.gz'.split(' '))
+            utils.wget_file(chimerascan_info.gene_models_url, chimerascan_info.gene_models_filename+'.gz')
+            subprocess.check_call(['gunzip', chimerascan_info.gene_models_filename+'.gz'])
 
-            subprocess.check_call('gunzip hg19.ucsc_genes.txt.gz'.split(' '))
+        with open(chimerascan_info.reference_genome_fasta, 'w') as fasta_file, tarfile.open(chimerascan_info.ucsc_genome_tar_filename, 'r:gz') as tar:
+
+            for tarinfo in tar:
+
+                chromosome = tarinfo.name[3:-3]
+
+                if chromosome in info.chromosomes:
+                    shutil.copyfileobj(tar.extractfile(tarinfo), fasta_file)
 
 
 with Sentinal('chimerascan_index') as sentinal:
