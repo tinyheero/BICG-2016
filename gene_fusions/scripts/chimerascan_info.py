@@ -25,7 +25,7 @@ ucsc_genome_tar_filename = os.path.join(data_directory, 'chromFa.tar.gz')
 reference_genome_fasta = os.path.join(data_directory, 'hg19.fa')
 
 
-gene_models_url = 'https://chimerascan.googlecode.com/files/hg19.ucsc'
+gene_models_url = 'https://chimerascan.googlecode.com/files/hg19.ucsc_genes.txt.gz'
 gene_models_filename = os.path.join(data_directory, 'hg19.ucsc_genes.txt')
 
 

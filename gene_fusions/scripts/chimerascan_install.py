@@ -3,6 +3,7 @@ import shutil
 import os
 import sys
 import subprocess
+import tarfile
 
 import utils
 import info
