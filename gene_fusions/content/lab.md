@@ -1,5 +1,4 @@
-# Module 4 - Gene Fusions
-># Lab
+# Module 4 - Gene Fusions Lab
 
 ## Setup
 
