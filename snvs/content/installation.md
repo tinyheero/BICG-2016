@@ -1,9 +1,10 @@
-% Linux Software Installation Guide
-% Andrew Roth
+# Linux Software Installation Guide
+# Andrew Roth
 
 The following document gives a brief overview of the essential concepts required for installing software in Linux.
 
 ## Before We Begin
+
 The following notes are about how to install software from the Linux command line. Most new versions of Linux include helpful graphical programs to install software. The steps below will typically only be necessary in the following cases.
 
 1. You are working on a computer which does not have a GUI, for example a remote server.
@@ -11,6 +12,7 @@ The following notes are about how to install software from the Linux command lin
 3. You are installing software which has not been nicely packaged for you Linux version. This last point applies to most Bioinformatics software.
 
 ## Variables
+
 The first concept that needs to be covered is a system variable. When you are working in the shell it is possible to save certain commands and file paths in a shell variable.
 
 The syntax for setting a variable is as follows.
@@ -30,6 +32,7 @@ echo $VAR
 ## System Variables
 
 ### `$PATH`
+
 In order for Linux to run programs it needs to now which directories contain programs. This is specified by setting the `$PATH` variable. This variable stores a list of all directories which contain executable programs. The list is delimited by colons, `:`, and Linux will search the directories for programs in the order the directories are listed. 
 
 For example setting
@@ -61,14 +64,17 @@ export PATH=$PATH:/new/dir
 ```
 
 ### `$LD_LIBRARY_PATH`
+
 In addition to knowing where the executable files are located, Linux also needs to know where to find the *library* files. Library files are program files, but they cannot be executed. They typically contain functions required by several programs, so they are placed in a single place and shared between programs.
 
 The `$LD_LIBRARY_PATH` variable tells Linux where to find library files. It can be viewed and manipulated exactly like the `$PATH` variable.
 
 ### `$HOME`
+
 The `$HOME` variable stores the path to your home directory. This can be useful when writing shell scripts.
 
 ### Setting System Variables
+
 When you execute 
 
 ```
@@ -96,6 +102,7 @@ to these files will cause `/new/dir` to added to your `$PATH` whenever you log i
 ## Installing Software
 
 ### Installation Using Make
+
 Many programs for Linux are written in C or C++. The vast majority of these programs are installed in a similar way using a program called `make`.
 
 The following steps should cover the installation of most programs which use `make`.
@@ -114,15 +121,18 @@ The following steps should cover the installation of most programs which use `ma
 7. (not always) Execute `make install`. This will copy any files to the system folders. Usually this means you can simply type `mypgrogram` to run the new software instead of giving the full path to where the program executable is located.
 
 ### Installing R Packages
+
 Installing packages in `R` is relatively straightforward. The are two main mechanisms
 
 1. Installation using CRAN and `install.packages`
 2. Installation using Bionconductor and `bioclite`.
 
 #### Installation Using CRAN
+
 To install a package from CRAN, simply find the package name and execute `install.packages('package_name')` from `R`. Follow any prompts which come up.
 
 #### Installation Using Bioconductor
+
 To install packages from Bioconductor you simply execute something like the following from `R`.
 
 ```
@@ -133,6 +143,7 @@ biocLite("affy")
 which would install the *affy* package. The first line loads the Bioconductor installation script, while the second line installs the package. Every Bioconductor package will include a snippet of code like this which you can copy and paste into your `R` environment.
 
 ### Installing Python Packages
+
 Installing packages in Python is generally straightforward. The first step is usually to download the *source* file. One website which keeps a fairly extensive list of Python packages is <https://pypi.python.org/pypi>.
 
 Once you have downloaded the package you will need to decompress the file and enter the newly created directory.
@@ -140,6 +151,7 @@ Once you have downloaded the package you will need to decompress the file and en
 From this directory you can execute `python setup.py install` to install the software.
 
 #### Additional Tools
+
 One program which is quite useful is [pip](https://pypi.python.org/pypi/pip). If you install `pip` many Python packages can be installed simply using the following command. 	
 
 ```
@@ -147,6 +159,7 @@ pip install SomePackage
 ```
 
 ## Installing Software Without Administrative Privileges
+
 Administrative privileges are essentially the ability to place files anywhere on the file system. This in turn means you can alter which programs are available to every user on the system.
 
 Unless you are working on you personal computer, you are unlikely to to have administrative privileges on the computer. On servers, where many people use the same computer, it would be very dangerous for everyone to have administrative privileges. They could potentially delete other user's files, change the installed software without others knowing etc.. Usually a small set of trusted systems administration people will have administrative privileges (sometimes called *root* privileges for archaic Unix reasons).
@@ -156,6 +169,7 @@ Restricting admin rights to a small group of people is great from the perspectiv
 Thankfully, Linux provides a powerful way to avoid this problem. The key idea is that users alter system variables such `$PATH` in their own accounts. This means they can have their own software stored in a place they can access, and it won't affect other users.
 
 ### Setting Up Personal Software
+
 The general approach to installing software for your own use is to install the software somewhere you have permissions to write to. A common choice is to install software to `~/bin` and libraries to `~/lib` where `~` indicates your home directory. This approach is fine, but it will often lead to a lot of other folders such as `~/include` and `~/share` being created in your home folder.
 
 I prefer to create a folder `~/install` and then place programs under `~/install/bin`. This means you will only have a single folder under your home directory. 
@@ -197,6 +211,7 @@ export LD_LIBRARY_PATH=$INSTALL_DIR/lib:$LD_LIBRARY_PATH.
 This will define a variable `$INSTALL_DIR` which we use to set `$PATH` and `$LD_LIBRARY_PATH`.
 
 #### Installing R Packages
+
 Before you can install `R` packages, you need to install a custom version of `R`. `R` can be installed like any other C/C++ program as discussed above.
 
 Once you have `R` installed you check which version the system in using by typing the following command.
@@ -222,11 +237,13 @@ you are still using the system version, not your personal version.
 Assuming you have installed a personal version of `R` you can then install packages just like before. The only difference is these packages will be installed for your personal version and not be visible to other users.
 
 #### Installing Python Packages
+
 To install Python packages you need to install a personal version of Python. Again this follows the same basic procedure for C/C++ programs outlined above.
 
 Once Python is installed correctly, and you are using your personal version, then package installation is as described previously.
 
 #### Considerations When Using Personal Software
+
 Keeping your own version of software has many benefits. In particular you can avoid many problems if the system adminstrators update a package you rely on.
 
 One problem which arises when using computer clusters is that your home directory on one computer, will typically not be visible on other computers in the cluster. As a result jobs run on the cluster will use the system version of the software instead of your personal versions.
@@ -236,6 +253,7 @@ The way to avoid this issue is to install your personal software somewhere all n
 To install personal software there, I would create a folder `/cluster/data/andrew/install` and replace `~/install` with this path in the procedure outlined above.
 
 #### Reproducible Research
+
 > Warning: The following is a bit advanced and can be skipped.
 
 When dealing with large projects which you plan to write papers about, it is essential you track the versions of software you use.
