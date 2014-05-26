@@ -31,21 +31,29 @@ Enter the Module4 directory
 
 ## Environment
 
+Module directory:
+
+    MODULE_DIR=/home/ubuntu/CourseData/CG_data/Module4/
+
 ChimeraScan install:
 
-    CHIMERASCAN_DIR=/home/ubuntu/CourseData/CG_data/Module4/tutorial/install/chimerascan
+    CHIMERASCAN_DIR=$MODULE_DIR/tutorial/install/chimerascan
 
 deFuse install:
 
-    DEFUSE_DIR=/home/ubuntu/CourseData/CG_data/Module4/tutorial/install/defuse
+    DEFUSE_DIR=$MODULE_DIR/tutorial/install/defuse
 
 TopHat-Fusion install:
 
-    TOPHATFUSION_DIR=/home/ubuntu/CourseData/CG_data/Module4/tutorial/install/tophat_fusion
+    TOPHATFUSION_DIR=$MODULE_DIR/tutorial/install/tophat_fusion
 
 Trinity install:
 
-    TRINITY_DIR=/home/ubuntu/CourseData/CG_data/Module4/tutorial/install/trinity
+    TRINITY_DIR=$MODULE_DIR/tutorial/install/trinity
+
+RSEM install:
+
+    RSEM_DIR=$MODULE_DIR/tutorial/install/rsem/packages/rsem-1.2.12
 
 ## Fusion analysis on a simulated dataset
 
@@ -53,8 +61,14 @@ We will run 4 different tools on a simulated RNA-Seq dataset consisting of fused
 
 To make things easier we will store the paths to the fastq files in environment variables.
 
-    FASTQ1=/home/ubuntu/CourseData/CG_data/Module4/tutorial/data/SIM001/SIM001_1.fastq
-    FASTQ2=/home/ubuntu/CourseData/CG_data/Module4/tutorial/data/SIM001/SIM001_2.fastq
+    FASTQ1=$MODULE_DIR/tutorial/data/SIM001/SIM001_1.fastq
+    FASTQ2=$MODULE_DIR/tutorial/data/SIM001/SIM001_2.fastq
+
+The information about the simulated fusions is stored in a tab separated file and can be viewed using the following command.
+
+    column -n -t $MODULE_DIR/tutorial/data/SIM001/simulation/fusions.tsv | less -S
+
+    cut -f8,16,17 $MODULE_DIR/tutorial/data/SIM001/simulation/fusions.tsv | uniq
 
 ### ChimeraScan
 
@@ -118,7 +132,19 @@ We now run the `tophat-fusion-post` tool.
         --output results/trinity
 
     gmap -f gff3_gene -D $TRINITY_DIR/data/gmap -d hg19 results/trinity/Trinity.fasta \
-        > results/trinity/trinity.gff3
+        > results/trinity/Trinity.gff3
+
+    python ./scripts/gmap_extract_fusions.py results/trinity/Trinity.gff3 \
+        results/trinity/Trinity.fasta results/trinity/Fusions.fasta
+
+### RSEM for fusion expression
+
+    mkdir -p results/rsem
+    $RSEM_DIR/rsem-prepare-reference results/trinity/Trinity.fasta \
+        results/rsem/trinity
+
+    $RSEM_DIR/rsem-calculate-expression -p 8 --paired-end \
+        $FASTQ1 $FASTQ2 results/rsem/trinity results/rsem/expression
 
 
 
