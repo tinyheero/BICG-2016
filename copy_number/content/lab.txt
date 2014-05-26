@@ -28,6 +28,82 @@ rm Module5.tar.gz
 # Enter the Module5 directory
 cd Module5/
 
+
+####
+##
+####
+
+mkdir packages
+cd packages
+
+# Download and install PennCNV
+wget http://www.openbioinformatics.org/penncnv/download/penncnv.latest.tar.gz
+tar -xzvf penncnv.latest.tar.gz
+PENN_CNV_DIR=`pwd`/penncnv
+
+# Download and extract Affymetrix GenomeWide SNP6 files distributed from PennCNV
+wget http://www.openbioinformatics.org/penncnv/download/gw6.tar.gz
+tar -xzvf gw6.tar.gz
+GW6_DIR=`pwd`/gw6
+
+# Download Affymetrix GenomeWide SNP6 files from affymetrix
+# Download http://www.affymetrix.com/Auth/support/downloads/library_files/genomewidesnp6_libraryfile.zip
+unzip genomewidesnp6_libraryfile.zip
+AFFY_DIR=`pwd`/CD_GenomeWideSNP_6_rev3
+
+# Obtain the affimetrix power tools http://www.affymetrix.com/support/developer/powertools/index.affx
+# Unzip and create a symbolic link
+ln -s $UNZIPPED apt
+
+# Path to Affymetrix Power Tools
+APT_DIR=`pwd`/apt
+
+
+
+# Path to PennCNV installation
+PENN_CNV_DIR=`pwd`/penncnv
+
+
+$ Chip description file from affymetrix
+SNP6_CDF=$AFFY_DIR/Full/GenomeWideSNP_6/LibFiles/GenomeWideSNP_6.cdf
+
+
+SKETCH_FILE=$GW6_DIR/lib/hapmap.quant-norm.normalization-target.txt
+CLUSTER_FILE=$GW6_DIR/lib/hapmap.genocluster
+LOC_FILE=$GW6_DIR/lib/affygw6.hg18.pfb
+
+
+mkdir output
+
+# Step 1: Probe set summarization
+
+$APT_DIR/bin/apt-probeset-summarize --cdf-file $SNP6_CDF --analysis quant-norm.sketch=50000,pm-only,med-polish,expr.genotype=true --target-sketch $SKETCH_FILE --out-dir output/apt --cel-files data/cel/file_list.txt --chip-type GenomeWideEx_6 --chip-type GenomeWideSNP_6
+
+
+# Step 2: B-allele and log ratios
+
+$GW6_DIR/bin/normalize_affy_geno_cluster.pl $CLUSTER_FILE output/apt/quant-norm.pm-only.med-polish.expr.summary.txt -locfile $LOC_FILE -out output/gw6.lrr_baf.txt
+
+
+# Step 3: 
+
+$PENN_CNV_DIR/kcolumn.pl output/gw6.lrr_baf.txt split 2 -tab -head 3 -name --output output/gw6
+
+
+
+################################################################################
+# Part 2.0 - Fetch data
+#
+# Obtain the data from NCBI's GEO
+################################################################################
+
+mkdir -p data/cel
+cd data/cel
+wget ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM337nnn/GSM337662/suppl/GSM337662%2ECEL%2Egz
+wget ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM337nnn/GSM337641/suppl/GSM337641%2ECEL%2Egz
+gunzip *.gz
+cd ../..
+
 ################################################################################
 # Part 2.1 - Array Normalisation and LRR/BAF Extraction
 #
