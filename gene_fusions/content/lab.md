@@ -147,4 +147,101 @@ We now run the `tophat-fusion-post` tool.
         $FASTQ1 $FASTQ2 results/rsem/trinity results/rsem/expression
 
 
+## Data Exploration
+
+In the following section we will use the ucsc genome browser's [online blat](http://genome.ucsc.edu/cgi-bin/hgBlat?command=start) to explore a number of example positive and negative fusion transcripts.
+
+### 313B RNA-Seq
+
+#### Example 1
+
+    >19455
+    CAGGAAATCTTCAGCAAGCTGTCTTACTTCTTTTGGCCAAGTCGCACTCCACATTAGA
+    GTTTGCCTATCAGGTCTTATTTGATCCACAATCTTCCTTATTTGGGGT|TCAAATCCC
+    ATATCCAGCATCCTATCAGCTTCATCCAACACTAAGTACTTGCAGAAGTCTAATCC
+
+Notice that in the alignment summary, the best matches overlap in the query sequence.  In deFuse this prediction is given a lower probability according to the breakpoint homology feature.
+
+       ACTIONS      QUERY           SCORE START  END QSIZE IDENTITY CHRO STRAND  START    END      SPAN
+    ---------------------------------------------------------------------------------------------------
+    browser details 19455            132     1   141   171  97.2%    17   +   62499145  62499374    230
+    browser details 19455             96     2   154   171  88.8%    22   +   38890737  38890976    240
+    browser details 19455             67   104   171   171 100.0%     Y   -   15027123  15027592    470
+    browser details 19455             62   108   171   171  98.5%     X   -   73350813  73350876     64
+    browser details 19455             40    88   141   171  87.1%     6   -   74118977  74119030     54
+    browser details 19455             32    84   116   171 100.0%    22   -   49607171  49613016   5846
+    browser details 19455             22    92   114   171 100.0%     4   +   72709432  72709456     25
+    browser details 19455             21    95   116   171 100.0%     6   +  131014581 131014603     23
+    browser details 19455             20    93   112   171 100.0%     2   -  157047083 157047102     20
+    browser details 19455             20   101   122   171  95.5%    14   -   29461851  29461872     22
+    browser details 19455             20     1    20   171 100.0%     3   +  175393751 175393770     20
+
+#### Example 2
+
+    >29877
+    CTGTTTCCTCTTTTACCAAGGACCCGCCAACATGGGCCG|GCTATCTTGTTGCGGAGCTT
+    CTTGCTGGGGATAATGGCGATCTCCTTGCACACGCGCTTGTTCGTGTG
+
+Blat the sequence.  Notice in the alignment summary, one part of the query sequence maps to many locations in the genome.  Although one of the alignments may represent a true fusion, the prediction is more likely a mapping artifact.
+
+       ACTIONS      QUERY           SCORE START  END QSIZE IDENTITY CHRO STRAND  START    END      SPAN
+    ---------------------------------------------------------------------------------------------------
+    browser details YourSeq           68    40   107   107 100.0%    22   -   32435560  32435627     68
+    browser details YourSeq           64    40   107   107  97.1%    15   +   82824392  82824459     68
+    browser details YourSeq           64    40   107   107  97.1%    15   +   83208735  83208802     68
+    browser details YourSeq           62    40   107   107  95.6%     5   -  116052023 116052090     68
+    browser details YourSeq           60    40   107   107  94.2%    17   -   29158008  29158075     68
+    browser details YourSeq           58    40   107   107  92.7%     1   +  167131923 167131990     68
+    browser details YourSeq           57    44   102   107  98.4%     6   -   63257401  63257459     59
+    browser details YourSeq           54    44   107   107  92.2%     6   +   50825228  50825291     64
+    browser details YourSeq           54    41   106   107  85.8%     3   +  143574838 143574900     63
+    browser details YourSeq           37    44    88   107  91.2%     7   -   37156486  37156530     45
+    browser details YourSeq           35     1    35   107 100.0%    15   -   82824833  82824867     35
+    browser details YourSeq           35     1    35   107 100.0%    15   -   83209176  83209210     35
+    browser details YourSeq           34    40    75   107  97.3%    11   +  110976470 110976505     36
+    browser details YourSeq           30     8    39   107  96.9%    22   +   32435452  32435483     32
+    browser details YourSeq           20     1    20   107 100.0%     5   +  144765194 144765213     20
+
+#### Example 3
+
+    >40571
+    TAGAATTAGAATTGTGAAGATGATAAGTGTAGAGGGAAGGTTAATAGTTGATATTGCTAG
+    TGTGGCGCTTCCAATTAGGTGCATGAGTAGGTGGCCTGCAGTAAT|GTTAGCGACAGGGA
+    GGGATGCGCGCCTGGGTGTAGTTGTGGGGGAGGAAGTGGCTAGCTCAGGGCTTCAGGGGA
+    CAGACAGGGAGAGATGACTGAG
+
+Blat the sequence and select the first alignment result.  Ensure you have the NUMT track turned on in UCSC.  This fusion prediction is actually a NUMT insertion in the patient's genome.
+
+#### Example 4
+
+    >33864
+    CCAGGGCGCCATTGAGCGGCGAGGGGGTGAGGGGGTTGACGGTGGCGGTGGTCCTGGTCG
+    CGGTGGAAAGCATCCCTAGCGAAGGGGACTTGGGCTCATGGCTCATGCCTG|CACCAGTA
+    AGGTCTGGTCCGTCCTCCTCCCGGCTGCTCTGCAGACACTGTGCTGGCCTCAGCTCCTGG
+    GCCATCCTGGGGCCTCTGGGCAG
+    >17735
+    CATGGGCACGCGCTTGGGTGTGCTGGCGGGGGAGCTGTGGTTGGTGGCCGGAGAGGACAC
+    GGGGGACGACTCGCTGCTCAGTGAGGACC|CTGCACCAGTAAGGTCTGGTCCGTCCTCCT
+    CCCGGCTGCTCTGCAGACACTGTGCTGGCCTCAGCTCCTGGGCCATCCTGGGGCCTCTGG
+    GCAGGGTCTCCGTGGGGGCGCGTGGCCGGGTCTCGGACT
+
+Blat both sequences and select the first alignment results.  These are examples of likely read through chimeras.
+
+#### Example 5
+
+    >5655
+    TGATCAAGCAACTTCCCTGAGGATCCTCAACAATGGTCATGCTTTCAACGTGGAGTTTGA
+    TGACTCTCAGGACAAAGC|AGAACGTAAGCTCCATGAGGACCAGGAAGTCTGTCTGCTTT
+    GTTCACTGCTGGATCCCGTGACTCGGAACAGTGCACGTAACAGGTGTTCAATAAACCTTT
+    GTTGAATGAATAAGTGAA
+    >11908
+    TCTGTTTCCTATGATCAAGCAACTTCCCTGAGGATCCTCAACAATGGTCATGCTTTCAAC
+    GTGGAGTTTGATGACTCTCAGGACAAAGC|AGGGGCTCTTTCCAGGATTCCTGGGTGATG
+    GTGCATGATTCTAACAAGCAACAACAGAGGATGAACCCCCGGCCAGATTCAGAAAACCCC
+    ACGCCCCTTCCAGGCA
+
+Blat both sequences.  Select any alignment and then browse to `chr1:110,721,056-110,731,655` and `chr8:86,373,054-86,382,253`.
+
+### 313B 
+
 
