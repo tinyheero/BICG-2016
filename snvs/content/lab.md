@@ -147,7 +147,7 @@ perl $STRELKA_DIR/bin/configureStrelkaWorkflow.pl \
     --tumor data/G15511.HCC1143.1.chr21.19M-20M.bam \
     --normal data/G15511.HCC1143_BL.1.chr21.19M-20M.bam \
     --ref HCC1143/Homo_sapiens_assembly19.fasta \
-    --config $STRELKA_DIR/etc/strelka_config_bwa_default.ini \
+    --config config/strelka_config_bwa.ini \
     --output-dir results/strelka/
 ```
 
