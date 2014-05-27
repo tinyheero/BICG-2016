@@ -91,6 +91,26 @@ samtools index data/G15511.HCC1143.1.chr21.19M-20M.bam
 samtools index data/G15511.HCC1143_BL.1.chr21.19M-20M.bam
 ```
 
+If you are unfamiliar with the sam/bam format, take some time to look at the alignments and metadata.
+
+The header information contains information about the reference genome and read groups (per read information about sample/flow cell/lane etc).
+
+```
+samtools view -H data/G15511.HCC1143.1.chr21.19M-20M.bam | less -S
+```
+
+The main contents of the file contain read alignments, tab separated, one line per alignment.
+
+```
+samtools view data/G15511.HCC1143.1.chr21.19M-20M.bam | less -S
+```
+
+Samtools will also calculate statistics about the reads and alignments.  Unfortunately this information is not cached, and thus this command will take considerable time on a regular sized bam.
+
+```
+samtools flagstat data/G15511.HCC1143.1.chr21.19M-20M.bam
+```
+
 ## Predicting SNVs
 
 GATK is a well used tool kit providing many bioinformatic functions, including SNV calling using the _UnifiedGenotyper_.  GATK is quite strict about its inputs, bam's and reference genomes must be constructed exactly as specified otherwise GATK will report an error and exit.  For example: the bam files and the genome must match exactly, and the reads must have properly defined read groups (per read information about sample/flow cell/lane etc).
