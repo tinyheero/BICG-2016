@@ -117,10 +117,23 @@ Command line options:
 - -I specifies input BAM filename
 - -baq RECALCULATE refers to Base Alignment Quality calculation, see the [samtools docs](http://samtools.sourceforge.net/mpileup.shtml) for details
 
-The GATK results are provided in VCF format.
+The raw GATK results are provided in VCF format.
 
 ```
 less -S results/gatk/HCC1143.vcf
+```
+
+GATK does not automatically call SNVs as somatic or germline.  Instead it calls variants in the tumour sample and normal sample independently.  To select somatic variant's, we use a simple script to select all variant's called in the tumour but not the normal.
+
+```
+python scripts/call_somatic_mutations.py results/gatk/HCC1143.vcf \
+    --normal_column 1 --min_genotype_quality 30 > results/gatk/HCC1143.somatics.txt
+```
+
+The results is a simple text file containing chromosome and position of somatic variants.
+
+```
+less -S results/gatk/HCC1143.somatics.txt
 ```
 
 ### Strelka
