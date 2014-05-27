@@ -1,3 +1,2 @@
-# Module 4 - Gene Fusions
-># Installation
+# Module 4 - Gene Fusions Installation
 
