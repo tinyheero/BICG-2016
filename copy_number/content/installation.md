@@ -1,4 +1,4 @@
-# Module 5 Lab - Software Installation Instructions
+# Module 5 Copy Number Analysis - Software Installation Instructions
 
 ## Setup
 Before we start please read the general guide on installing software in Linux.

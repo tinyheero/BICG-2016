@@ -1,4 +1,4 @@
-# Module 5 Lab - Copy Number Analysis
+# Module 5 Copy Number Analysis - Lab
 
 ## Setup
 
@@ -346,28 +346,55 @@ less -S results/apolloh/params.txt
 The `loh.txt` file contains information about the state of each SNP.
 
 ```
-less -S loh.txt
+less -S results/apolloh/loh.txt
 ```
 
 The `segs.txt` contains information about the segments.
 
 ```
-less -S segs.txt
+less -S results/apolloh/segs.txt
 ```
 
 ### OncoSNP-SEQ 
 
+OncoSNP-SEQ is another tool that predicts allele specific copy number of WGS.  The input is a set of SNP positions a pileup file from the tumour and normal genomes.  Pileup files take a considerable amount of time to generate, and the pileups for chromosome 21 have been generated for you.  They provide information of the read bases that match each reference base with one line per position in the genome.
 
 ```
-perl /usr/local/oncosnpseq/scripts/process_pileup.pl \
-    --infile HCC1143/G15511.HCC1143.1.chr21.pileup \
-    --outfile test --snpfile genome/oncoseq/bed_chr_21.bed
-perl /usr/local/oncosnpseq/scripts/process_pileup.pl \
-    --infile HCC1143/G15511.HCC1143.1.chr21.pileup \
-    --outfile test --snpfile genome/oncoseq/bed_chr_21.bed
+less -S HCC1143/G15511.HCC1143.1.chr21.pileup
 ```
 
+The pileups are processed by oncosnpseq using the process_pileup.pl script.  Run these in parallel using the `&`.
 
+```
+mkdir results/oncosnpseq
+perl /usr/local/oncosnpseq/scripts/process_pileup.pl \
+    --infile HCC1143/G15511.HCC1143.1.chr21.pileup \
+    --outfile results/oncosnpseq/tumour.txt \
+    --snpfile genome/oncoseq/bed_chr_21.bed \
+    > results/oncosnpseq/tumour.log &
+perl /usr/local/oncosnpseq/scripts/process_pileup.pl \
+    --infile HCC1143/G15511.HCC1143_BL.1.chr21.pileup \
+    --outfile results/oncosnpseq/normal.txt \
+    --snpfile genome/oncoseq/bed_chr_21.bed \
+    > results/oncosnpseq/normal.log &
+```
+
+OncoSNP-SEQ will be run in a similar way to oncosnp.  For convencience we have provided the run_oncosnpseq.sh.  This will be easier to execute than a large command line.
+
+```
+less -S scripts/run_oncosnpseq.sh
+```
+
+Create an output directory for oncosnpseq.  Run OncoSNP using the script provided.  
+
+We will run OncoSNP in the background since it is slow.  While it goes we can take a few more minutes to study the script for launching it. Please ask questions.
+
+```
+bash scripts/run_oncosnpseq.sh results/oncosnpseq/tumour.txt \
+    results/oncosnpseq/normal.txt HCC1143 results/oncosnpseq/ &
+```
+
+The results are similar to oncosnp and can be found in the module package under `results/oncosnpseq`.
 
 ## Visualizing Datasets In IGV
 

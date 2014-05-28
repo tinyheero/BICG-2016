@@ -1,5 +1,4 @@
-# Module 5 Lab - Copy Number Analysis
-> # Data Preparation
+# Module 5 Copy Number Analysis - Data Preparation
 
 ## Introduction
 
@@ -120,10 +119,10 @@ Copy number prediction is based on read depth.  Calculate read depth for the tum
 
 ## Convert to pileup
 
+For OncoSNP-SEQ, we require pileup files.  These can take some time to prepare, so they have been created for you.
 
     samtools mpileup G15511.HCC1143_BL.1.chr21.bam > G15511.HCC1143_BL.1.chr21.pileup
     samtools mpileup G15511.HCC1143.1.chr21.bam > G15511.HCC1143.1.chr21.pileup
-
 
 ## OncoSNP-Seq setup
 
@@ -140,38 +139,3 @@ Download the GC content files from the [OncoSNP-SEQ google sites page](https://s
     wget --no-check-certificate "https://doc-08-7c-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/b3vbuuo4e743kg87p1qehbamqsft7lpo/1401026400000/03938588792210094527/*/0B_XFGmx3odi4MzlPTjhqTlktS3c?h=16653014193614665626&e=download" -O b37.tar.gz
     tar -xzvf b37.tar.gz
 
-
-
-
- momac23:copy_number amcphers$ ls
-GenomeWideSNP_6,Full.CDF    apt-1.15.1-src.zip      data                old             output              packages
-momac23:copy_number amcphers$ wget http://bioinfo-out.curie.fr/projects/freec/data/testChr19.zip
---2014-05-23 17:56:19--  http://bioinfo-out.curie.fr/projects/freec/data/testChr19.zip
-Resolving bioinfo-out.curie.fr (bioinfo-out.curie.fr)... 193.49.205.28
-Connecting to bioinfo-out.curie.fr (bioinfo-out.curie.fr)|193.49.205.28|:80... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 1334106500 (1.2G) [application/zip]
-Saving to: ‘testChr19.zip’
-
-100%[==================================================================================================================================================================================================================================================================================>] 1,334,106,500  331KB/s   in 37m 12s
-
-2014-05-23 18:33:32 (584 KB/s) - ‘testChr19.zip’ saved [1334106500/1334106500]
-
-momac23:copy_number amcphers$ unzip testChr19.zip
-Archive:  testChr19.zip
-   creating: testChr19/
-  inflating: testChr19/GC_profile.cnp
-  inflating: testChr19/run.sh
-  inflating: testChr19/hg19_snp131.SingleDiNucl.1based.txt
-  inflating: testChr19/config_chr19.txt
-  inflating: testChr19/chr_19.noDup0.pileup.gz
-  inflating: testChr19/hs19_chr19.len
-  inflating: testChr19/README.txt
-  inflating: testChr19/makeGraph_Chromosome.R
-  inflating: testChr19/chr_19.noDup0.pileup.gz_sample.cpn
-momac23:copy_number amcphers$
-momac23:copy_number amcphers$ ls
-GenomeWideSNP_6,Full.CDF    apt-1.15.1-src.zip      data                old             output              packages            testChr19           testChr19.zip
-momac23:copy_number amcphers$ pwd
-/Users/amcphers/Analysis/cbw_tutorial/copy_number
-momac
