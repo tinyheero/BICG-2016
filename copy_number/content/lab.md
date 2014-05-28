@@ -10,7 +10,7 @@ Now enter the ~/workspace directory
 cd ~/workspace
 ```
 
-Now we will download the scripts we need for this module from the wiki page.  I have copied the link from the wiki page below. If the command below does not work try copying the link from the wiki and pasting yourself.
+Download the module package we need for this module from the wiki page onto your amazon instance.
 
 ```
 wget http://bioinformatics.ca/workshop_wiki/images/0/0c/Module5.tar.gz
@@ -62,6 +62,17 @@ APT_DIR=$INSTALL_DIR/apt-1.15.2-x86_64-intel-linux
 
 ```
 SNP6_CDF=$INSTALL_DIR/GenomeWideSNP_6.cdf
+```
+
+```
+export ONCOSNP_DIR=/usr/local/oncosnp
+export MCR_DIR=/opt/MCR/v82
+```
+
+GC content files.
+
+```
+export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b36
 ```
 
 ## SNP6.0 Analysis
@@ -129,20 +140,20 @@ $GW6_DIR/bin/normalize_affy_geno_cluster.pl $CLUSTER_FILE \
 #### Step 3: Split results into a single file per sample
 
 ```
-$PENN_CNV_DIR/kcolumn.pl results/gw6.lrr_baf.txt split 2 -tab -head 3 \
+perl scripts/penncnv/kcolumn.pl results/array/gw6.lrr_baf.txt split 2 -tab -head 3 \
     -name --output results/array/gw6
 ```
 
-The normalised files will be placed in `results/gw6*`.
+The normalised files will be placed in `results/array/gw6*`.
 
 ```
-ls -lh results/gw6*
+ls -lh results/array/gw6*
 ```
 
 The file structure is one probe per line, giving the position, normalized log R and BAF for each probe.
 
 ```
-less -S results/gw6.GSM337641
+less -S results/array/gw6.GSM337641
 ```
 
 ### CNV Calling and Visualisation 
@@ -150,19 +161,19 @@ less -S results/gw6.GSM337641
 Now that we have the BAF and LRR data we will use OncoSNP to analyse this data.  Create a working directory for OncoSNP.
 
 ```
-mkdir oncosnp
+mkdir -p results/oncosnp
 ```
 
 OncoSNP requires an input file describing the dataset to be analyzed.  A template is available with the oncoSNP install.
 
 ```
-cp /usr/local/oncosnp/demo/example-batch-file.txt oncosnp/batch-file.txt
+cp /usr/local/oncosnp/demo/example-batch-file.txt results/oncosnp/batch-file.txt
 ```
 
-Next we edit this file to point to our data.  Note the tumour data is in gw6.GSM337641 and the normal data in gw6.GSM337662.  Set the name of the sample to `HCC113`.
+Next we edit this file to point to our data.  Note the tumour data is in gw6.GSM337641 and the normal data in gw6.GSM337662.  Set the name of the sample to `HCC1143`.
 
 ```
-nano -w oncosnp/batch-file.txt
+nano -w results/oncosnp/batch-file.txt
 ```
 
 OncoSNP has many command line parameters, and most will not change between runs of different datasets.  For convencience we have provided the run_oncosnp.sh.  This will be easier to execute than a large command line.
@@ -176,20 +187,19 @@ Create an output directory for oncosnp.  Run OncoSNP using the script provided.
 We will run OncoSNP in the background since it is slow.  While it goes we can take a few more minutes to study the script for launching it. Please ask questions.
 
 ```
-mkdir oncosnp/results
-bash scripts/run_oncosnp.sh oncosnp/batch-file.txt oncosnp/results &
+bash scripts/run_oncosnp.sh results/oncosnp/batch-file.txt results/oncosnp &
 ```
 
 Rather then print to screen, the script sends the output of OncoSNP to a log file. We can monitor the progress of the program by examining this file.
 
 ```
-less -S oncosnp/results/run.log
+less -S results/oncosnp/run.log
 ```
 
 Similarly the errors are also sent to a file which we can explore.
 
 ```
-less -S oncosnp/results/run.err
+less -S results/oncosnp/run.err
 ```
 
 We can see if the script is still running by looking at our background jobs
@@ -198,46 +208,43 @@ We can see if the script is still running by looking at our background jobs
 jobs
 ```
 
-When the program finishes we can go to the output folder and browser the results.
+To bring the job back into the foreground, type
 
 ```
-ls -lh oncosnp/results
+fg
+```
+
+To put it in the background again, suspend it using conrol-z, then type
+
+```
+bg
+```
+
+When the program finishes we can go to the output folder and browse the results.
+
+```
+ls -lh results/oncosnp
 ```
 
 The first key file is the .qc file which outputs some basic quality control values and some parameters. Probably the most interesting value is the stromal contamination i.e. fraction of normal cells. Two values are reported by default because OncoSNP does multiple analysis runs. The first value is the most probable.
 
 ```
-less -S oncosnp/results/HCC1143.qc
+less -S results/oncosnp/HCC1143.qc
 ```
 
 Next is .cnvs file which contains the smoothed segments with there copy number prediction.
 
 ```
-less -S oncosnp/results/HCC1143.cnvs
+less -S results/oncosnp/HCC1143.cnvs
 ```
 
 The last file we will look at is the .cnv file. This is essentially a more informative version of the .cnvs file. One column of particular interest is the "Tumour State" column. This is an integer >= 1 which represents the most likely state of the HMM for that segment. 
 
 ```
-less -S oncosnp/results/HCC1143.cnv
+less -S results/oncosnp/HCC1143.cnvs
 ```
 
-One downside of OncoSNP is that it does not give parental copy number directly. We can recover this information by taking the tumour state for a segment and looking it up in the file passed to OncoSNP after the --tumourstatesfile flag.  The states correspond to rows in this file. The minor copy number is given by the TumourBalleles2 column, the major copy number is given by the tumourBalleles3 and the total copy number by TumourBalleles4.
-
-```
-less -S /usr/local/oncosnp/configuration/tumourStates.dat
-```
-
-We've included a script to parse this information out.
-
-```
-python scripts/parse_segments.py oncosnp/results/HCC1143.cnv \
-    oncosnp/results/HCC1143.pcn.seg \
-    /usr/local/oncosnp/configuration/tumourStates.dat
-less -S oncosnp/results/HCC1143.pcn.seg
-```
-
-The final intersting file that OncoSNP produces is the plots HCC1143.ps.gz.  Since I would like to avoid dealing with transfering from the cloud in this tutorial I have included a copy of the figure in scripts for this lab.  Download this file to your own computer decompress it. The plot is under figures/oncosnp.
+The final intersting file that OncoSNP produces is the plots HCC1143.*.ps.gz.  This file can be found in the module package under `content/figures/oncosnp` in case you have trouble copying the file from your amazon instance.
 
 ## Whole Genome Sequencing (WGS) Analysis
 
@@ -274,10 +281,10 @@ less -S /home/ubuntu/CourseData/CG_data/Module5/HCC1143/G15511.HCC1143_BL.1.chr2
 An R script is provided to run HMMCopy.  
 
 ```
-less -S scripts/run.R
+less -S scripts/hmmcopy/run.R
 ```
 
-Start R,
+Run R.
 
 ```
 R
@@ -286,7 +293,7 @@ R
 and use the source function to execute the script.  Then quit.
 
 ```
-source('scripts/hmmcopy/run.R')
+source('scripts/hmmcopyrun.R')
 quit()
 ```
 
@@ -296,13 +303,13 @@ The `run.R` script will create two directories: `results/hmmcopy/results` contai
 less -S results/hmmcopy/results/tumour.igv.seg
 ```
 
-<!-- The plots file are in the scripts you downloaded earlier under figures/hmmcopy. -->
-
 ### APOLLOH for allele specific copy number
 
 To obtain BAF data from bam files, we first need to run a genotyper to call heterozygous SNP positions in the normal.  GATK has been run for you (see data preparation).  The output of GATK is a VCF file.
 
 ```
+mkdir data/vcf
+cp /home/ubuntu/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.vcf data/vcf
 less -S data/vcf/HCC1143.GATK.vcf
 ```
 
