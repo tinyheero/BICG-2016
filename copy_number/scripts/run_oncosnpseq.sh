@@ -18,17 +18,12 @@ HGTABLES_FILE=$ONCOSNPSEQ_DIR/config/hgTables_b37.txt
 ############## For more information, see https://sites.google.com/site/oncosnpseq/usage                 ###########
 ###################################################################################################################
 
-$ONCOSNP_DIR/run_oncosnp.sh $MCR_DIR \
+$ONCOSNPSEQ_DIR/executables/run_oncoseq.sh $MCR_DIR \
     --tumourstatesfile $STATES_FILE \
-    --hgtables $HGTABLES_FILE \
+    --hgtable $HGTABLES_FILE \
     --infile $TUMOUR_FILE \
     --normalfile $NORMAL_FILE \
     --samplename $SAMPLE_NAME \
     --seqtype 'illumina' \
-    --outdir $OUTPUT_DIR
+    --outdir $OUTPUT_DIR \
     >$OUTPUT_DIR/run.log 2>$OUTPUT_DIR/run.err
-
-
-
-
-
