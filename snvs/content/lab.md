@@ -113,6 +113,8 @@ samtools flagstat data/G15511.HCC1143.1.chr21.19M-20M.bam
 
 ## Predicting SNVs
 
+### GATK
+
 GATK is a well used tool kit providing many bioinformatic functions, including SNV calling using the _UnifiedGenotyper_.  GATK is quite strict about its inputs, bam's and reference genomes must be constructed exactly as specified otherwise GATK will report an error and exit.  For example: the bam files and the genome must match exactly, and the reads must have properly defined read groups (per read information about sample/flow cell/lane etc).
 
 Run GATK using java as follows.
