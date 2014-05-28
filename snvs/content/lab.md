@@ -1,4 +1,4 @@
-# Module 6 - Somatic Mutations Lab
+# Module 6 Somatic Mutations - Lab
 
 ## Setup
 
@@ -228,5 +228,6 @@ The results are provided in VCF format.
 ```
 less -S results/mutationseq/HCC1143.vcf
 ```
+
 
 
