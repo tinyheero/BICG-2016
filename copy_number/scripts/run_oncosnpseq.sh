@@ -21,6 +21,7 @@ HGTABLES_FILE=$ONCOSNPSEQ_DIR/config/hgTables_b37.txt
 $ONCOSNPSEQ_DIR/executables/run_oncoseq.sh $MCR_DIR \
     --tumourstatesfile $STATES_FILE \
     --hgtable $HGTABLES_FILE \
+    --gcdir $GC_DIR \
     --infile $TUMOUR_FILE \
     --normalfile $NORMAL_FILE \
     --samplename $SAMPLE_NAME \
