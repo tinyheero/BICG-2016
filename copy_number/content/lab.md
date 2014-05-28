@@ -48,28 +48,33 @@ Link to the scripts
 INSTALL_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/
 ```
 
-```
-PENN_CNV_DIR=$INSTALL_DIR/penncnv
-```
+Normalization files:
 
 ```
 GW6_DIR=$INSTALL_DIR/gw6
 ```
 
+Affimetrix power tools:
+
 ```
 APT_DIR=$INSTALL_DIR/apt-1.15.2-x86_64-intel-linux
 ```
+
+Cell definition file for SNP6.0:
 
 ```
 SNP6_CDF=$INSTALL_DIR/GenomeWideSNP_6.cdf
 ```
 
+Oncosnp and oncosnp-seq locations:
+
 ```
 export ONCOSNP_DIR=/usr/local/oncosnp
+export ONCOSNPSEQ_DIR=/usr/local/oncosnpseq/
 export MCR_DIR=/opt/MCR/v82
 ```
 
-GC content files.
+GC content files for oncosnp and oncosnpseq:
 
 ```
 export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b36
