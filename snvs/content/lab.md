@@ -231,5 +231,10 @@ The results are provided in VCF format.
 less -S results/mutationseq/HCC1143.vcf
 ```
 
+## Data Exploration
+
+Download the chromosome 21 bam files from the Module 6 wiki section.  View these bam files in IGV.  
+The predictions for the whole HCC1143 dataset are contained in the Module 6 package at `Module6/content/data/HCC1143.vcf.gz`.  These can also be loaded into IGV.  Additionally, a plot provided by mutationseq for the HCC1143 tumour is located at `Module6/content/data/HCC1143_0.5_0.9_PASS.pdf`.
+
 
 
