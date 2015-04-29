@@ -57,7 +57,7 @@ GW6_DIR=$INSTALL_DIR/gw6
 Affimetrix power tools:
 
 ```
-APT_DIR=$INSTALL_DIR/apt-1.15.2-x86_64-intel-linux
+APT_DIR=$INSTALL_DIR/apt-1.17.0-x86_64-intel-linux
 ```
 
 Cell definition file for SNP6.0:
