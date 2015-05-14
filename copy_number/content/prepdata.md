@@ -1,8 +1,8 @@
-# Module 5 Copy Number Analysis - Data Preparation
+# Module 5 Copy Number Alterations - Data Preparation
 
 ## Introduction
 
-This lab uses a number of publically available datasets.  Below we give details about how to obtain these datasets.  We also include instructions for the time intensive processing has been applied to these datasets prior to the lab.  The instructions below will not be needed during the lab, they are included for reference purposes in case you wish to reproduce the lab in your own time.
+This lab uses a number of publicly available datasets.  Below we give details about how to obtain these datasets.  We also include instructions for the time intensive processing has been applied to these datasets prior to the lab.  The instructions below will not be needed during the lab, they are included for reference purposes in case you wish to reproduce the lab in your own time.
 
 ## Environment
 
@@ -11,7 +11,7 @@ The following environment variables are required.
 `PICARD_DIR=/usr/local/picard` picard tools binaries directory
 `HMMCOPY_DIR=/usr/local/HMMcopy` hmm copy binaries directory
 
-## SNP6.0 HCC1143 cell line data
+## Affymetrix SNP 6.0 HCC1143 cell line data
 
 The cel files containing the probe intensity data for cell line HCC1143 can be downloaded as follows.
 

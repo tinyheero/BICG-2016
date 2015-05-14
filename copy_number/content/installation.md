@@ -1,4 +1,6 @@
-# Module 5 Copy Number Analysis - Software Installation Instructions
+# Module 5 Copy Number Alterations: Software Installation Instructions
+
+This page describes the installation of software used for this lab module. 
 
 ## Setup
 Before we start please read the general guide on installing software in Linux.
@@ -91,18 +93,18 @@ We will use the procedure described on the [penncnv site](http://www.openbioinfo
 
 > Note: You will need to register with Affymetrix to download the library files, specifically the .cdf file, from the [affimetrix site](http://www.affymetrix.com/support/technical/byproduct.affx?product=genomewidesnp_6). The [aroma-project](http://www.aroma-project.org/docs) has a copy available which we will download since it can be done from the cloud.
 
-    cd $INSTALL_DIR/src
+    cd $INSTALL_DIR
     wget http://www.openbioinformatics.org/penncnv/download/penncnv.latest.tar.gz
     tar -xzvf penncnv.latest.tar.gz
-    export PENN_CNV_DIR=$INSTALL_DIR/src/penncnv
+    export PENN_CNV_DIR=$INSTALL_DIR//penncnv
     
     wget http://www.openbioinformatics.org/penncnv/download/gw6.tar.gz
     tar -xzvf gw6.tar.gz
-    export GW6_DIR=$INSTALL_DIR/src/gw6
+    export GW6_DIR=$INSTALL_DIR/gw6
     
-    wget http://media.affymetrix.com/Download/updates/apt-1.15.2-x86_64-intel-linux.zip
-    unzip apt-1.15.2-x86_64-intel-linux.zip
-    export APT_DIR=$INSTALL_DIR/src/apt-1.15.2-x86_64-intel-linux
+    wget http://media.affymetrix.com/Download/updates/apt-1.17.0-x86_64-intel-linux.zip
+    unzip apt-1.17.0-x86_64-intel-linux.zip
+    export APT_DIR=$INSTALL_DIR/apt-1.17.0-x86_64-intel-linux
     
     wget http://www.aroma-project.org/data/annotationData/chipTypes/GenomeWideSNP_6/GenomeWideSNP_6.cdf.gz
     gunzip GenomeWideSNP_6.cdf.gz
@@ -116,7 +118,7 @@ We will also need to download GC content files for the relevant build of the gen
     cd $INSTALL_DIR/src
     wget http://www.well.ox.ac.uk/~cyau/oncosnp/oncosnp_v1.4.run
     bash oncosnp_v1.4.run          # enter your oncosnp password
-    export ONCOSNP_DIR=$INSTALL_DIR/src/oncosnp
+    export ONCOSNP_DIR=$INSTALL_DIR/oncosnp
     
     wget ftp://ftp.stats.ox.ac.uk/pub/yau/oncosnp/mcr/MCRinstaller.run.zip
     unzip MCRinstaller.run.zip
@@ -125,7 +127,7 @@ We will also need to download GC content files for the relevant build of the gen
     
     wget ftp://ftp.stats.ox.ac.uk/pub/yau/quantisnp2/download/b36.tar.gz
     tar -zxvf b36.tar.gz
-    export GC_DIR=$INSTALL_DIR/src/b36
+    export GC_DIR=$INSTALL_DIR/b36
 
 The `MCRinstaller.run` installer will ask you where to install the MATLAB MCR files. You should `export MCR_DIR=` to create an environment variable pointing to the location to which you installed MATLAB MCR.  The MCR will be located in a subdirectory `MATLAB_Compiler_Runtime/vXXX` for version XXX of the compiler.
 

@@ -57,7 +57,7 @@ GW6_DIR=$INSTALL_DIR/gw6
 Affimetrix power tools:
 
 ```
-APT_DIR=$INSTALL_DIR/apt-1.15.2-x86_64-intel-linux
+APT_DIR=$INSTALL_DIR/apt-1.17.0-x86_64-intel-linux
 ```
 
 Cell definition file for SNP6.0:
@@ -71,24 +71,37 @@ Oncosnp and oncosnp-seq locations:
 ```
 export ONCOSNP_DIR=/usr/local/oncosnp
 export ONCOSNPSEQ_DIR=/usr/local/oncosnpseq/
-export MCR_DIR=/opt/MCR/v82
+export MCR_DIR=/home/ubuntu/CourseData/software/MATLAB/MCR/v82
 ```
 
 GC content files for oncosnp and oncosnpseq:
 
 ```
-export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b36
+export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b37
 ```
 
-## SNP6.0 Analysis
+Summary of all the above environment commands:
+
+```
+INSTALL_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/
+GW6_DIR=$INSTALL_DIR/gw6
+APT_DIR=$INSTALL_DIR/apt-1.17.0-x86_64-intel-linux
+SNP6_CDF=$INSTALL_DIR/GenomeWideSNP_6.cdf
+export ONCOSNP_DIR=/usr/local/oncosnp
+export ONCOSNPSEQ_DIR=/usr/local/oncosnpseq/
+export MCR_DIR=/home/ubuntu/CourseData/software/MATLAB/MCR/v82
+export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b37
+```
+
+## Part 1 - Affymetrix SNP 6.0 Analysis
 
 ### Fetch Array Data
 
-The array data for HCC1143 has already been downloaded for you.  Create a directory and copy the array data to your workspace.
+For calling copy number variants from Affymetrix SNP 6.0 data, we will be using breast cancer cell-line (HC1143) with a tumour-normal pair. The array data for HCC1143 has already been downloaded for you. Create a directory and copy the array data to your workspace.
 
 ```
 mkdir -p data/cel
-cp /home/ubuntu/CourseData/CG_data/Module5/data/cel/*.CEL data/cel
+cp /home/ubuntu/CourseData/CG_data/Module5/data/HC1143/cel/* data/cel
 ```
 
 Create a list of the cel files to be used by downstream tools.  In practice we would normalize many arrays in a batch.  For demonstration purposes we use just a single tumour and normal.
@@ -99,7 +112,7 @@ echo `pwd`/data/cel/GSM337641.CEL >> data/cel/file_list.txt
 echo `pwd`/data/cel/GSM337662.CEL >> data/cel/file_list.txt
 ```
 
-### Array Normalisation and LRR/BAF Extraction
+### Part 1.1 - Array Normalisation and LRR/BAF Extraction
 
 The first step in array analysis is to normalise the data and extract the log R and BAF (B Allele Frequencies). The following steps will create normalised data from Affymetrix SNP6 data.
 
@@ -120,7 +133,7 @@ CLUSTER_FILE=$GW6_DIR/lib/hapmap.genocluster
 Chromosome positions for each probe.
 
 ```
-LOC_FILE=$GW6_DIR/lib/affygw6.hg18.pfb
+LOC_FILE=$GW6_DIR/lib/affygw6.hg19.pfb
 ```
 
 #### Step 1: Probe set summarization
@@ -161,6 +174,7 @@ The file structure is one probe per line, giving the position, normalized log R 
 less -S results/array/gw6.GSM337641
 ```
 
+
 ### CNV Calling and Visualisation 
 
 Now that we have the BAF and LRR data we will use OncoSNP to analyse this data.  Create a working directory for OncoSNP.
@@ -169,7 +183,7 @@ Now that we have the BAF and LRR data we will use OncoSNP to analyse this data. 
 mkdir -p results/oncosnp
 ```
 
-OncoSNP requires an input file describing the dataset to be analyzed.  A template is available with the oncoSNP install.
+OncoSNP requires an input file describing the dataset to be analyzed.  A template is available with the OncoSNP install.
 
 ```
 cp /usr/local/oncosnp/demo/example-batch-file.txt results/oncosnp/batch-file.txt
@@ -181,7 +195,7 @@ Next we edit this file to point to our data.  Note the tumour data is in gw6.GSM
 nano -w results/oncosnp/batch-file.txt
 ```
 
-OncoSNP has many command line parameters, and most will not change between runs of different datasets.  For convencience we have provided the run_oncosnp.sh.  This will be easier to execute than a large command line.
+OncoSNP has many command line parameters, and most will not change between runs of different datasets.  For convenience we have provided the run_oncosnp.sh.  This will be easier to execute than a large command line.
 
 ```
 less -S scripts/run_oncosnp.sh
@@ -189,7 +203,7 @@ less -S scripts/run_oncosnp.sh
 
 Create an output directory for oncosnp.  Run OncoSNP using the script provided.  
 
-We will run OncoSNP in the background since it is slow.  While it goes we can take a few more minutes to study the script for launching it. Please ask questions.
+We will run OncoSNP only on chromosome 21 since it can take awhile for the whole genome. While it goes we can take a few more minutes to study the script for launching it. Please feel free to ask questions.
 
 ```
 bash scripts/run_oncosnp.sh results/oncosnp/batch-file.txt results/oncosnp &
@@ -249,11 +263,11 @@ The last file we will look at is the .cnv file. This is essentially a more infor
 less -S results/oncosnp/HCC1143.cnvs
 ```
 
-The final intersting file that OncoSNP produces is the plots HCC1143.*.ps.gz.  This file can be found in the module package under `content/figures/oncosnp` in case you have trouble copying the file from your amazon instance.
+The final interesting file that OncoSNP produces is the plots HCC1143.*.ps.gz.  This file can be found in the module package under `content/figures/oncosnp` in case you have trouble copying the file from your amazon instance.
 
 ## Whole Genome Sequencing (WGS) Analysis
 
-The workflow for WGSS data is not dramatically different. We still need to do some normalisation and B allele extraction.
+The workflow for WGS data is not dramatically different. We still need to do some normalisation and B allele extraction.
 
 The dataset we will be using is a breast cancer cell line sequenced by the TCGA.  The data has been downloaded and partially processed for you (See data preparation).
 
