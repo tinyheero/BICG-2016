@@ -66,6 +66,12 @@ GATK install:
 GATK_DIR=/usr/local/GATK/
 ```
 
+SnpEff install:
+
+```
+SNPEFF_DIR=/usr/local/snpEff
+```
+
 ## Prepare Data
 
 We will be using data from the HCC1143 breast cancer cell line.  The bam files for chromosome 21 are stored on the server.  Create a link to the location of the bam files to allow us to access them quickly.
@@ -113,51 +119,6 @@ samtools flagstat data/G15511.HCC1143.1.chr21.19M-20M.bam
 
 ## Predicting SNVs
 
-### GATK
-
-GATK is a well used tool kit providing many bioinformatic functions, including SNV calling using the _UnifiedGenotyper_.  GATK is quite strict about its inputs, bam's and reference genomes must be constructed exactly as specified otherwise GATK will report an error and exit.  For example: the bam files and the genome must match exactly, and the reads must have properly defined read groups (per read information about sample/flow cell/lane etc).
-
-Run GATK using java as follows.
-
-```
-mkdir -p results/gatk
-java -jar $GATK_DIR/GenomeAnalysisTK.jar \
-    -R HCC1143/Homo_sapiens_assembly19.fasta \
-    -T UnifiedGenotyper \
-    -baq RECALCULATE \
-    -L 21:19000000-20000000 \
-    -I data/G15511.HCC1143_BL.1.chr21.19M-20M.bam \
-    -I data/G15511.HCC1143.1.chr21.19M-20M.bam \
-    -o results/gatk/HCC1143.vcf
-```
-
-Command line options: 
-
-- -R specifies the reference genome fasta file  
-- -T specifies the tool we want to execute; we want UnifiedGenotyper 
-- -L specifies the region we want to analyse
-- -I specifies input BAM filename
-- -baq RECALCULATE refers to Base Alignment Quality calculation, see the [samtools docs](http://samtools.sourceforge.net/mpileup.shtml) for details
-
-The raw GATK results are provided in VCF format.
-
-```
-less -S results/gatk/HCC1143.vcf
-```
-
-GATK does not automatically call SNVs as somatic or germline.  Instead it calls variants in the tumour sample and normal sample independently.  To select somatic variant's, we use a simple script to select all variant's called in the tumour but not the normal.
-
-```
-python scripts/call_somatic_mutations.py results/gatk/HCC1143.vcf \
-    --normal_column 1 --min_genotype_quality 30 > results/gatk/HCC1143.somatics.txt
-```
-
-The results is a simple text file containing chromosome and position of somatic variants.
-
-```
-less -S results/gatk/HCC1143.somatics.txt
-```
-
 ### Strelka
 
 Create a local copy of the strelka config.  Strelka provides config files for the bwa, eland, and isaac.  Each file contains default configuration parameters that work well with the aligner.  The bam files we are working with were created using bwa, so we select that config file and make a local copy to make changes.
@@ -203,6 +164,7 @@ less -S results/strelka/results/passed.somatic.snvs.vcf
 less -S results/strelka/results/passed.somatic.indels.vcf
 ```
 
+
 ### MutationSeq
 
 Running mutationseq is a one step process.  The tumour and normal bam files and reference genome are provided on the command line.  MutationSeq uses supervised learning (random forest) to classify each mutation as true or artifact.  The training set consists of over 1000 known true and positive mutations validated by deep SNV sequencing.  The trained model is provided with the mutationseq package, but must be provided on the command line using the `model:` argument.
@@ -231,9 +193,24 @@ The results are provided in VCF format.
 less -S results/mutationseq/HCC1143.vcf
 ```
 
+## Converting the VCF format into a tabular format
+
+The VCF format is sometimes not useful for visualization and data exploration purposes which often requires the data to be in tabular format. We can convert from VCF format to tabular format using the extractField() function from SnpSift/SnpEff.
+
+```
+SNPEFF_DIR=~/share/usr/snpEff/snpEff-4.0
+java -jar $SNPEFF_DIR/SnpSift.jar extractFields -e "."  passed.somatic.snvs.vcf CHROM POS ID REF ALT QUAL QSS TQSS NT QSS_NT TQSS_NT SGT SOMATIC GEN[0].DP GEN[1].DP GEN[0].FDP GEN[1].FDP GEN[0].SDP GEN[1].SDP GEN[0].SUBDP GEN[1].SUBDP GEN[0].AU GEN[1].AU GEN[0].CU GEN[1].CU GEN[0].GU GEN[1].GU GEN[0].TU GEN[1].TU > passed.somatic.snvs.txt
+```
+
+The -e parameter specifies how to represent empty fields. In this case, the "." character is placed for any empty fields. This facilities loading and completeness of data. For more details on the extractField() function see the [SnpSift documentation](http://snpeff.sourceforge.net/SnpSift.html#Extract).
+
 ## Data Exploration
 
-Download the chromosome 21 bam files from the Module 6 wiki section.  View these bam files in IGV.  
+Download the chromosome 21 bam files from the Module 6 wiki section.  View these bam files in IGV.
+
+Further exploration of the data can be done using R. Open up the rmarkdown file 
+
+  
 The predictions for the whole HCC1143 dataset are contained in the Module 6 package at `Module6/content/data/HCC1143.vcf.gz`.  These can also be loaded into IGV.  Additionally, a plot provided by mutationseq for the HCC1143 tumour is located at `Module6/content/data/HCC1143_0.5_0.9_PASS.pdf`.
 
 
