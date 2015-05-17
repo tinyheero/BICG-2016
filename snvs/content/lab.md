@@ -48,22 +48,10 @@ Module directory:
 MODULE_DIR=/home/ubuntu/CourseData/CG_data/Module6/
 ```
 
-Strelka install:
-
-```
-STRELKA_DIR=/usr/local/strelka/
-```
-
 MutationSeq install:
 
 ```
 MUTATIONSEQ_DIR=/usr/local/mutationSeq/
-```
-
-GATK install:
-
-```
-GATK_DIR=/usr/local/GATK/
 ```
 
 SnpEff install:
@@ -125,8 +113,20 @@ Create a local copy of the strelka config.  Strelka provides config files for th
 
 ```
 mkdir config
-cp $STRELKA_DIR/etc/strelka_config_bwa_default.ini config/strelka_config_bwa.ini
+cp /usr/local/etc/strelka_config_bwa_default.ini config/strelka_config_bwa.ini
 ```
+
+Since we will be using Exome data for this, we need to change the isSkipDepthFilters parameter in the strelka_config_bwa.ini file. Let's create a new config file for exome analysis:
+
+```
+cp config/strelka_config_bwa.ini config/strelka_config_bwa_exome.ini
+```
+
+Now let's edit the `config/strelka_config_bwa_exome.ini` and change the `isSkipDepthFilters = 0` to `isSkipDepthFilters = 1`. The reason why we do this is described on the [Strelka FAQ page](https://sites.google.com/site/strelkasomaticvariantcaller/home/faq):
+
+> The depth filter is designed to filter out all variants which are called above a multiple of the mean chromosome depth, the default configuration is set to filter variants with a depth greater than 3x the chromosomal mean. If you are using exome/targeted sequencing data, the depth filter should be turned off...
+> 
+> However in whole exome sequencing data, the mean chromosomal depth will be extremely small, resulting in nearly all variants being (improperly) filtered out.
 
 The `binSize` config option allows a user to parallelize by genomic regions of a certain size.  Since we are not going to run jobs in parallel using a cluster, we will set this to a reasonably high value.  Edit `config/strelka_config_bwa.ini` and set `binSize` to `250000000`.  The file should then contain the line
 
@@ -199,7 +199,7 @@ The VCF format is sometimes not useful for visualization and data exploration pu
 
 ```
 SNPEFF_DIR=~/share/usr/snpEff/snpEff-4.0
-java -jar $SNPEFF_DIR/SnpSift.jar extractFields -e "."  passed.somatic.snvs.vcf CHROM POS ID REF ALT QUAL QSS TQSS NT QSS_NT TQSS_NT SGT SOMATIC GEN[0].DP GEN[1].DP GEN[0].FDP GEN[1].FDP GEN[0].SDP GEN[1].SDP GEN[0].SUBDP GEN[1].SUBDP GEN[0].AU GEN[1].AU GEN[0].CU GEN[1].CU GEN[0].GU GEN[1].GU GEN[0].TU GEN[1].TU > passed.somatic.snvs.txt
+java -jar $SNPEFF_DIR/SnpSift.jar extractFields -e "."  passed.somatic.snvs.vcf CHROM POS ID REF ALT QUAL FILER QSS TQSS NT QSS_NT TQSS_NT SGT SOMATIC GEN[0].DP GEN[1].DP GEN[0].FDP GEN[1].FDP GEN[0].SDP GEN[1].SDP GEN[0].SUBDP GEN[1].SUBDP GEN[0].AU GEN[1].AU GEN[0].CU GEN[1].CU GEN[0].GU GEN[1].GU GEN[0].TU GEN[1].TU > passed.somatic.snvs.txt
 ```
 
 The -e parameter specifies how to represent empty fields. In this case, the "." character is placed for any empty fields. This facilities loading and completeness of data. For more details on the extractField() function see the [SnpSift documentation](http://snpeff.sourceforge.net/SnpSift.html#Extract).
