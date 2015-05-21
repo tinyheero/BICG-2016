@@ -1,4 +1,4 @@
-# Module 5 Copy Number Analysis - Lab
+# Lab Module 5 - Copy Number Analysis
 
 ## Setup
 
@@ -80,7 +80,7 @@ GC content files for oncosnp and oncosnpseq:
 export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b37
 ```
 
-Summary of all the above environment commands:
+Summary of all the above environment commands (for copy and pasting convenience):
 
 ```
 INSTALL_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/
@@ -93,28 +93,27 @@ export MCR_DIR=/home/ubuntu/CourseData/software/MATLAB/MCR/v82
 export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b37
 ```
 
-## Part 1 - Affymetrix SNP 6.0 Analysis
+## Affymetrix SNP 6.0 Analysis
 
 ### Fetch Array Data
 
-For calling copy number variants from Affymetrix SNP 6.0 data, we will be using breast cancer cell-line (HC1143) with a tumour-normal pair. The array data for HCC1143 has already been downloaded for you. Create a directory and copy the array data to your workspace.
+For calling copy number variants from Affymetrix SNP 6.0 data, we will be using breast cancer cell-line (HC1395). The array data for HCC1395 has already been downloaded for you. Create a directory and copy the array data to your workspace.
 
 ```
 mkdir -p data/cel
-cp /home/ubuntu/CourseData/CG_data/Module5/data/HC1143/cel/* data/cel
+cp /home/ubuntu/CourseData/CG_data/HCC1395/cel/* data/cel
 ```
 
-Create a list of the cel files to be used by downstream tools.  In practice we would normalize many arrays in a batch.  For demonstration purposes we use just a single tumour and normal.
+Create a list of the cel files to be used by downstream tools.  In practice we would normalize many arrays in a batch.  For demonstration purposes we use just a single tumour.
 
 ```
 echo cel_files > data/cel/file_list.txt
-echo `pwd`/data/cel/GSM337641.CEL >> data/cel/file_list.txt
-echo `pwd`/data/cel/GSM337662.CEL >> data/cel/file_list.txt
+echo `pwd`/data/cel/GSM888107.CEL >> data/cel/file_list.txt
 ```
 
-### Part 1.1 - Array Normalisation and LRR/BAF Extraction
+### Step 1 - Array Normalisation and LRR/BAF Extraction
 
-The first step in array analysis is to normalise the data and extract the log R and BAF (B Allele Frequencies). The following steps will create normalised data from Affymetrix SNP6 data.
+The first step in array analysis is to normalize the data and extract the log R and BAF (B Allele Frequencies). The following steps will create normalised data from Affymetrix SNP6 data.
 
 We require a number of data files that define the SNP6.0 arrays.
 
