@@ -24,6 +24,14 @@ comma := ,
 
 INIT = mkdir -p $(@D); set -o pipefail;
 
+### 
+## Lab Wiki
+###
+
+# convert markdown into a mediawiki format to upload onto the CBW wiki
+lab.wiki : 
+	pandoc -t mediawiki -o lab.wiki lab.md
+
 ###
 ## Oncosnp
 ## HCC1395 SNP 6.0 Microarray (http://165.112.7.20/geo/query/acc.cgi?acc=GSM888107) from the CCLE
