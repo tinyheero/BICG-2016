@@ -70,7 +70,6 @@ Oncosnp and oncosnp-seq locations:
 
 ```
 export ONCOSNP_DIR=/usr/local/oncosnp
-export ONCOSNPSEQ_DIR=/usr/local/oncosnpseq/
 export MCR_DIR=/home/ubuntu/CourseData/software/MATLAB/MCR/v82
 ```
 
@@ -93,11 +92,9 @@ export MCR_DIR=/home/ubuntu/CourseData/software/MATLAB/MCR/v82
 export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b37
 ```
 
-## Part 1 - Affymetrix SNP 6.0 Analysis
+## Analysis Of CNAs using Arrays
 
-### Fetch Array Data
-
-For calling copy number variants from Affymetrix SNP 6.0 data, we will be using breast cancer cell-line (HC1143) with a tumour-normal pair. The array data for HCC1143 has already been downloaded for you. Create a directory and copy the array data to your workspace.
+For this particular example, we will using the Affymetrix SNP 6.0 microarrays data to predict CNAs. Specifically, we will be using a breast cancer cell-line (HC1143) with a tumour-normal pair. The array data for HCC1143 has already been downloaded for you. Create a directory and copy the array data to your workspace.
 
 ```
 mkdir -p data/cel
@@ -112,11 +109,11 @@ echo `pwd`/data/cel/GSM337641.CEL >> data/cel/file_list.txt
 echo `pwd`/data/cel/GSM337662.CEL >> data/cel/file_list.txt
 ```
 
-### Part 1.1 - Array Normalisation and LRR/BAF Extraction
+### Step 1 - Array Normalization and LRR/BAF Extraction
 
 The first step in array analysis is to normalise the data and extract the log R and BAF (B Allele Frequencies). The following steps will create normalised data from Affymetrix SNP6 data.
 
-We require a number of data files that define the SNP6.0 arrays.
+We require a number of data files that define the SNP 6.0 arrays.
 
 The sketch file gives a subset of the probes that work well for normalization.
 
@@ -136,7 +133,7 @@ Chromosome positions for each probe.
 LOC_FILE=$GW6_DIR/lib/affygw6.hg19.pfb
 ```
 
-#### Step 1: Probe set summarization
+Once these reference files have been defined, we can now perform probeset summarization:
 
 ```
 $APT_DIR/bin/apt-probeset-summarize --cdf-file $SNP6_CDF \
@@ -146,7 +143,9 @@ $APT_DIR/bin/apt-probeset-summarize --cdf-file $SNP6_CDF \
     --chip-type GenomeWideSNP_6
 ```
 
-#### Step 2: B-allele and log ratios
+### Part 1.2 - B-allele and log ratios
+
+Now that normalization is complete, we can extract the B-allele frequencies (BAF) and log R ratios (LRR).
 
 ```
 mkdir -p results/array
@@ -155,7 +154,7 @@ $GW6_DIR/bin/normalize_affy_geno_cluster.pl $CLUSTER_FILE \
     -locfile $LOC_FILE -out results/array/gw6.lrr_baf.txt
 ```
 
-#### Step 3: Split results into a single file per sample
+The BAF and LRR values for every sample in the batch will be placed into a single file. We will need to split them into sample specific BAF and LRR files for downstream analyses:
 
 ```
 perl scripts/penncnv/kcolumn.pl results/array/gw6.lrr_baf.txt split 2 -tab -head 3 \
@@ -174,8 +173,7 @@ The file structure is one probe per line, giving the position, normalized log R 
 less -S results/array/gw6.GSM337641
 ```
 
-
-### CNV Calling and Visualisation 
+### Part 1.3 - CNV Calling and Visualisation 
 
 Now that we have the BAF and LRR data we will use OncoSNP to analyse this data.  Create a working directory for OncoSNP.
 
@@ -265,9 +263,9 @@ less -S results/oncosnp/HCC1143.cnvs
 
 The final interesting file that OncoSNP produces is the plots HCC1143.*.ps.gz.  This file can be found in the module package under `content/figures/oncosnp` in case you have trouble copying the file from your amazon instance.
 
-## Whole Genome Sequencing (WGS) Analysis
+## Analysis Of CNAs using Sequencing Data
 
-The workflow for WGS data is not dramatically different. We still need to do some normalisation and B allele extraction.
+The workflow for analyzing data is not dramatically different. We still need to do some normalisation and B allele extraction.
 
 The dataset we will be using is a breast cancer cell line sequenced by the TCGA.  The data has been downloaded and partially processed for you (See data preparation).
 
