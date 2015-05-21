@@ -4,7 +4,7 @@
 SAMTOOLS ?= ~/share/usr/samtools-0.1.18/samtools
 BCFTOOLS ?= ~/share/usr/samtools-0.1.18/bcftools/bcftools
 JAVA ?= ~/share/usr/jre1.7.0_25/bin/java
-REF_FASTA ?= refdata/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa
+REF_FASTA ?= ref_data/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa
 
 SNPEFF_DIR ?= ~/share/usr/snpEff/snpEff-4.0
 
@@ -12,6 +12,8 @@ VCF_FIELDS ?= CHROM POS REF ALT DP4
 DBSNP ?= 
 
 CHROMOSOMES = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22
+
+HMMCOPY_DIR ?= ~/share/usr/HMMcopy-0.1.1
 
 , := ,
 space :=
@@ -40,7 +42,7 @@ READCOUNTER_OPTS ?=
 # generate tumour/normal read counts
 hmmCopy/wig/%.wig :
 	mkdir -p $(@D); \
-	~/share/usr/HMMcopy-0.1.1/bin/readCounter -c $(subst $( ),$(,),$(strip $(CHROMOSOMES))) HCC1395/exome/$*.bam > $@
+	$(HMMCOPY_DIR)/bin/readCounter -c $(subst $( ),$(,),$(strip $(CHROMOSOMES))) HCC1395/exome/$*.bam > $@
 
 ###
 ## TITAN
@@ -72,10 +74,10 @@ titan/bcftools/vcf/HCC1395_exome_normal.var.het.vcf : $(foreach chr,$(CHROMOSOME
 
 # build a bed file containing normal het positions to be 
 # passed into the tumour
-titan/bcftools/bed/HCC1395_exome_normal.var.het.%.QUAL_20.bed : titan/bcftools/vcf/HCC1395_exome_normal.var.het.QUAL_20.vcf
+titan/bcftools/bed/HCC1395_exome_normal.var.het.%.bed : titan/bcftools/vcf/HCC1395_exome_normal.var.het.vcf
 	$(INIT) awk '{OFS="\t"; if (!/^#/ && $$1 == "$*"){print $$1,$$2-1,$$2,$$4"/"$$5,"+"}}' $< > $@
 
-titan/bcftools/vcf/HCC1395_exome_tumour.var.het.%.vcf : titan/bcftools/bed/HCC1395_exome_normal.var.het.%.QUAL_20.bed HCC1395/exome/HCC1395_exome_tumour.bam
+titan/bcftools/vcf/HCC1395_exome_tumour.var.het.%.vcf : titan/bcftools/bed/HCC1395_exome_normal.var.het.%.bed HCC1395/exome/HCC1395_exome_tumour.bam
 	$(SAMTOOLS) view -uF 1024 $(word 2,$^) $* | $(SAMTOOLS) mpileup -u -I -f $(REF_FASTA) -l $< - | $(BCFTOOLS) view -cg - > $@
 
 # merge vcf files from different chromosome positions
@@ -100,12 +102,9 @@ titan/bcftools/vcf/HCC1395_exome_tumour.bcftools.vcf : titan/bcftools/vcf/het_po
 	$(SAMTOOLS) view -uF 1024 $(word 2,$^) 17 | $(SAMTOOLS) mpileup -u -I -f $(REF_FASTA) -l $(word 1,$^) - | $(BCFTOOLS) view -cg - > $@
 endif
 
-titan/bcftools/vcf/HCC1395_exome_normal.var.het.QUAL_20.vcf : titan/bcftools/vcf/HCC1395_exome_normal.var.het.vcf 
-	cat $< | $(JAVA) -jar ~/share/usr/snpEff/snpEff-4.0/SnpSift.jar filter "(QUAL >= 20)" > $@
-
 # construct a tumour and normal table
 # normal just for interest
-titan/bcftools/tables/HCC1395_exome_normal.var.het.table.tmp : titan/bcftools/vcf/HCC1395_exome_normal.var.het.QUAL_20.vcf
+titan/bcftools/tables/HCC1395_exome_normal.var.het.table.tmp : titan/bcftools/vcf/HCC1395_exome_normal.var.het.vcf
 	mkdir -p $(@D); \
 	java -jar $(SNPEFF_DIR)/SnpSift.jar extractFields $< $(VCF_FIELDS) > $@
 
@@ -113,7 +112,7 @@ titan/bcftools/tables/HCC1395_exome_normal.var.het.table.txt : titan/bcftools/ta
 	perl getTitanAlleleReadCounts.pl $< > $@ && rm $<
 
 # construct a table
-titan/bcftools/tables/HCC1395_exome_tumour.var.het.table.tmp : titan/bcftools/vcf/HCC1395_exome_tumour.var.het.QUAL_20.vcf
+titan/bcftools/tables/HCC1395_exome_tumour.var.het.table.tmp : titan/bcftools/vcf/HCC1395_exome_tumour.var.het.vcf
 	mkdir -p $(@D); \
 	java -jar $(SNPEFF_DIR)/SnpSift.jar extractFields $< $(VCF_FIELDS) > $@
 
