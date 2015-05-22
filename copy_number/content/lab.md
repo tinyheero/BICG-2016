@@ -157,6 +157,13 @@ less -S results/array/gw6.GSM888107
 | SNP_A-4264431 | 1   | 2951834  | -0.1812                   | 0.0272                      |
 | SNP_A-1980898 | 1   | 3095126  | 0.0830                    | 0.9793                      |
 
+The OncoSNP manual recommends only using the SNP probes and not the CNA probes for analysis. This is because the CNA probes only give you information on one allele and thus may confound the analysis. You can refer the "Can I use Affymetrix data?" question in the [FAQ section](https://sites.google.com/site/oncosnp/frequently-asked-questions) for more information about this.
+
+```
+grep -v -P 'CN_\d+' results/array/gw6.GSM888107 > results/array/gw6.GSM888107.snp_probes
+```
+
+
 ### Step 3 - Call CNV
 
 Now that we have the BAF and LRR data we will use OncoSNP to analyze this data.  Create a working directory for OncoSNP.
@@ -170,7 +177,7 @@ OncoSNP has many command line parameters, and most will not change between runs 
 ```
 $ONCOSNP_DIR/run_oncosnp.sh $MCR_DIR \
 	--sampleid HCC1395 \
-	--tumour-file results/array/gw6.GSM888107 \
+	--tumour-file results/array/gw6.GSM888107.snp_probes \
 	--output-dir results/oncosnp \
 	--fulloutput --plot \
 	--gcdir $GC_DIR \
