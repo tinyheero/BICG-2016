@@ -2,7 +2,7 @@
 
 ## Setup
 
-First login into the cloud.
+First login into the server.
 
 Now enter the ~/workspace directory
 
@@ -25,13 +25,17 @@ ln -s /home/ubuntu/CourseData/CG_data/Module6/scripts
 
 ## Environment
 
-MutationSeq install:
+In this section, we will set some environment variables to help facilitate the execution of commands. These variables will set to the location of some important files we need for the commands in this module. One important thing to remember is that:
+
+> These variables that you set will only persist in this current session you are in. If you log out and log back into the server, you will have to set these variables again.
+
+Set the directory of where MutationSeq is installed:
 
 ```
-MUTATIONSEQ_DIR=/usr/local/mutationSeq/
+MUTATIONSEQ_DIR=/usr/local/museq/
 ```
 
-SnpEff install:
+Set the directory of where SnpEff is installed:
 
 ```
 SNPEFF_DIR=/usr/local/snpEff
@@ -108,7 +112,7 @@ Since we will be using exome data for this, we need to change the `isSkipDepthFi
 cp config/strelka_config_bwa.ini config/strelka_config_bwa_exome.ini
 ```
 
-Now let's edit the `config/strelka_config_bwa_exome.ini` and change the `isSkipDepthFilters = 0` to `isSkipDepthFilters = 1`.  Let's edit the file using the text editor nano:
+Now let's edit the `config/strelka_config_bwa_exome.ini` and change the `isSkipDepthFilters = 0` to `isSkipDepthFilters = 1`.  We will use the text editor nano for this:
 
 ```
 nano config/strelka_config_bwa_exome.ini
@@ -119,6 +123,8 @@ Please let us know if you have any issues editing the file. The reason why we do
 > The depth filter is designed to filter out all variants which are called above a multiple of the mean chromosome depth, the default configuration is set to filter variants with a depth greater than 3x the chromosomal mean. If you are using exome/targeted sequencing data, the depth filter should be turned off...
 > 
 > However in whole exome sequencing data, the mean chromosomal depth will be extremely small, resulting in nearly all variants being (improperly) filtered out.
+
+If you were doing this for whole genome sequencing data, then you should leave this parameter set to 0 as the depth of coverage won't be as high. 
 
 A Strelka analysis is performed in 2 steps.  In the first step we provide Strelka with all the information it requires to run the analysis, including the tumour and normal bam filenames, the config, and the reference genome.  Strelka will create an output directory with the setup required to run the analysis.
 
@@ -231,7 +237,7 @@ Manually inspecting these predicted SNVs in IGV is a good way to verify the pred
 
 ### Exploration in R
 
-While IGV is good for visualizing individual mutations, looking at more global characteristics would require loading the data into an analysis software. We can use R for this.
+While IGV is good for visualizing individual mutations, looking at more global characteristics would require loading the data into an analysis language like R:
 
 We will use exome-wide SNV predictions for Strelka and MutationSeq for these analyses. These processed tabular text files along with the `analyzeSNVResults.Rmd` RMarkdown file that contains the R code for the analysis can downloaded as a package. 
 
