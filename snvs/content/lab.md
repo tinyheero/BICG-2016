@@ -191,7 +191,7 @@ less -S results/mutationseq/HCC1395.log
 When MutationSeq has finished, the results will be provided in VCF format:
 
 ```
-less -S results/mutationseq/HCC1395.vcf
+less -S results/mutationseq/HCC1395.museq.vcf
 ```
 
 Filtering on these results are left to the end-user. A threshold of 0.85 on PR (probability of being a true somatic mutation) will be used in this lab.
