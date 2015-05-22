@@ -2,7 +2,7 @@
 
 ## Setup
 
-First login into the cloud.
+First login into the server.
 
 Now enter the ~/workspace directory
 
@@ -69,10 +69,13 @@ GW6_DIR=$INSTALL_DIR/gw6
 APT_DIR=$INSTALL_DIR/apt-1.17.0-x86_64-intel-linux
 SNP6_CDF=$INSTALL_DIR/GenomeWideSNP_6.cdf
 export ONCOSNP_DIR=/usr/local/oncosnp
-export ONCOSNPSEQ_DIR=/usr/local/oncosnpseq/
 export MCR_DIR=/home/ubuntu/CourseData/software/MATLAB/MCR/v82
 export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b37
 ```
+
+One important thing to remember is that:
+
+> These variables that you set will only persist in this current session you are in. If you log out and log back into the server, you will have to set these variables again.
 
 ## Analysis Of CNAs using Arrays
 
@@ -157,7 +160,7 @@ less -S results/array/gw6.GSM888107
 | SNP_A-4264431 | 1   | 2951834  | -0.1812                   | 0.0272                      |
 | SNP_A-1980898 | 1   | 3095126  | 0.0830                    | 0.9793                      |
 
-The OncoSNP manual recommends only using the SNP probes and not the CNA probes for analysis. This is because the CNA probes only give you information on one allele and thus may confound the analysis. You can refer the "Can I use Affymetrix data?" question in the [FAQ section](https://sites.google.com/site/oncosnp/frequently-asked-questions) for more information about this.
+The OncoSNP manual recommends only using the SNP probes and not the CNA probes for analysis. This is because the CNA probes only give you information on one allele and thus may confound the analysis. You can refer the "Can I use Affymetrix data?" question in the [FAQ section](https://sites.google.com/site/oncosnp/frequently-asked-questions) for more information about th	is.
 
 ```
 grep -v -P 'CN_\d+' results/array/gw6.GSM888107 > results/array/gw6.GSM888107.snp_probes
@@ -199,6 +202,7 @@ Some important parameters to consider:
 * --chr: Specify the chromosome you want to run on. In this example, we run only on chromosome 21 since it can take awhile for the whole genome. Don't specify this parameter for whole genome analysis.
 * --stroma: This parameter can be specified for normal content adjustment. As this is a cell-line, we did not set this. 
 * --intratumor: This parameter can be specified for correcting intratumor heterogeneity. As this is a cell-line, we did not set this. 
+* --normal-file: If you have a matching normal, you can specify it here. OncoSNP will then perform a paired analysis mode. As we have no matching normal here, we leave this parameter unspecified.
 
 The `&` character at the end of the above command sends the job to run in the background. Rather then print the progress of the job to screen, this command will send output of OncoSNP to a log file. We can monitor the progress of the program by examining this file.
 
@@ -236,7 +240,7 @@ When the program finishes we can go to the output folder and browse the results.
 ls -lh results/oncosnp
 ```
 
-The first key file is the .qc file which outputs some basic quality control values and some parameters. Probably the most interesting value is the stromal contamination i.e. fraction of normal cells. Two values are reported by default because OncoSNP does multiple analysis runs. The first value is the most probable.
+The first key file is the .qc file which outputs some basic quality control values and some parameters. Probably the most interesting value is the stromal contamination i.e. fraction of normal cells. Two values are reported by default because OncoSNP does multiple analysis runs (initialized two different baseline ploidy configurations: diploid and non-diploid). The first value is the most probable.
 
 ```
 less -S results/oncosnp/HCC1395.qc
