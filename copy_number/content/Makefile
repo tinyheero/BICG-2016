@@ -4,7 +4,7 @@
 SAMTOOLS ?= ~/share/usr/samtools-0.1.18/samtools
 BCFTOOLS ?= ~/share/usr/samtools-0.1.18/bcftools/bcftools
 JAVA ?= ~/share/usr/jre1.7.0_25/bin/java
-REF_FASTA ?= ref_data/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa
+REF_FASTA ?= ref_data/Homo_sapiens.GRCh38.75.dna.primary_assembly.fa
 
 SNPEFF_DIR ?= ~/share/usr/snpEff/snpEff-4.0
 

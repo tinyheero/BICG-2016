@@ -36,7 +36,7 @@ results/museq/HCC1395.museq.full.vcf :
 	-l $(@D)/$(@F).log --all 
 
 %.museq.txt : %.museq.vcf
-	java -jar $(SNPEFF_DIR)/SnpSift.jar extractFields -e "." $< CHROM POS ID REF ALT QUAL QSS FILTER PR TR TA NR NA TC NI ND > $@
+	java -jar $(SNPEFF_DIR)/SnpSift.jar extractFields -e "." $< CHROM POS ID REF ALT QUAL FILTER PR TR TA NR NA TC NI ND > $@
 
 ####
 ## Strelka

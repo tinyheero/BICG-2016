@@ -10,37 +10,19 @@ Now enter the ~/workspace directory
 cd ~/workspace
 ```
 
-Download the module package we need for this module from the wiki page onto your amazon instance.
+Create a directory for this module and enter this directory:
 
 ```
-wget http://bioinformatics.ca/workshop_wiki/images/0/0c/Module5.tar.gz
+mkdir Module5
+cd Module5
 ```
 
-Now we will "unzip" the files.
+Now let's create a link to some helper scripts we will need for this module:
 
 ```
-tar -zxvf Module5.tar.gz
+ln -s /home/ubuntu/CourseData/CG_data/Module5/scripts
 ```
 
-This should create a folder called Module5. Check this is true.
-
-```
-ls -lh
-```
-
-We can now remove the compressed ".tar.gz" file to keep our workspace clean.
-
-```
-rm Module5.tar.gz
-```
-
-Enter the Module5 directory
-
-```
-cd Module5/
-```
-
-Link to the scripts
 
 ## Environment
 
@@ -159,13 +141,7 @@ perl scripts/penncnv/kcolumn.pl results/array/gw6.lrr_baf.txt split 2 -tab -head
     -name --output results/array/gw6
 ```
 
-The sample-specific BAF and LRR files will be placed in `results/array/gw6*`.
-
-```
-ls -lh results/array/gw6*
-```
-
-The file structure is one probe per line, giving the position, normalized log R and BAF for each probe.
+The sample-specific BAF and LRR files will be placed in `results/array/gw6*`. The file structure is one probe per line, giving the position, normalized log R and BAF for each probe.
 
 ```
 less -S results/array/gw6.GSM888107
@@ -301,145 +277,59 @@ The raw sequencing data has been downloaded and aligned for you (See data prepar
 ln -s /home/ubuntu/CourseData/CG_data/HCC1395
 ```
 
-It is very important that we use the same genome fasta as was used to generate the bams. The genome fasta has also been downloaded for you. Create a hardlink to the folder containing these data:
+### Get Input Data
+
+We will be using TITAN, available as a R bioconductor package (TitanCNA) for the copy number analysis. The program has the ability to perform the normalization, extraction of LRR/BAF, and calling of CNV. But before we can use TITAN, we need to retrieve a few input files:
+
+1. Tumour read count data
+2. Normal read count data
+3. Tumour allele counts for normal heterozygous positions
+4. Genome reference mappability file
+5. Genome reference GC content file
+
+Generating these files can take a bit of time. So for this lab, they have been already been generated for you and can be copied for running (Please see the data preparation page for details on how these files were generated
+
+Copy the tumour and normal read count data:
+
+```
+mkdir -p hmmCopy/wig
+cp /home/ubuntu/CourseData/CG_data/Module5/hmmCopy/wig/* hmmCopy/wig
+```
+
+Copy the tumour allele count data:
+
+```
+mkdir -p titan/bcftools/tables
+cp /home/ubuntu/CourseData/CG_data/Module5/titan/bcftools/tables/* titan/bcftools/tables/
+```
+
+Create a link for the folder containing the genome reference along with its mappability and GC content file:
 
 ```
 ln -s /home/ubuntu/CourseData/CG_data/ref_data
 ```
 
-### HMMCopy/Titan for total copy number
+### Running TITAN
 
-HMMcopy requires several input files all in .wig format. For most analyses you can use the GC content and mappability files on the HMMcopy website.  For this lab we have created versions for chr21.
-
-```
-less -S /home/ubuntu/CourseData/CG_data/Module5/genome/hg19.21.gc.wig
-less -S /home/ubuntu/CourseData/CG_data/Module5/genome/hg19.21.map.wig
-```
-
-HMMCopy also requires read depth for tumour and normal data.  These are obtained by counting reads overlapping 1000bp segments in the human genome. 
+Once these input files have been retrieved/generated, we can now run TITAN. A R script `scripts/run_titan.R` is provided to run TITAN.
 
 ```
-less -S /home/ubuntu/CourseData/CG_data/Module5/HCC1143/G15511.HCC1143.1.chr21.wig
-less -S /home/ubuntu/CourseData/CG_data/Module5/HCC1143/G15511.HCC1143_BL.1.chr21.wig
+Rscript scripts/run_titan.R &> run_titan.log &
 ```
 
-An R script is provided to run HMMCopy.  
+Just like the oncosnp run, this will run in the background. You can check the progress of the job by going:
 
 ```
-less -S scripts/hmmcopy/run.R
+less -S run_titan.log
 ```
 
-Run R.
+This will take a few minutes to run. Take this time to review the script itself. Please any questions regarding the content of the script:
 
 ```
-R
+less -S scripts/run_titan.R
 ```
 
-and use the source function to execute the script.  Then quit.
-
-```
-source('scripts/hmmcopyrun.R')
-quit()
-```
-
-The `run.R` script will create two directories: `results/hmmcopy/results` containts the segment files and `results/hmmcopy/plots` contains the various plots generated.  The `.igv.seg` segment file can be loaded into IGV.
-
-```
-less -S results/hmmcopy/results/tumour.igv.seg
-```
-
-### APOLLOH for allele specific copy number
-
-To obtain BAF data from bam files, we first need to run a genotyper to call heterozygous SNP positions in the normal.  GATK has been run for you (see data preparation).  The output of GATK is a VCF file.
-
-```
-mkdir data/vcf
-cp /home/ubuntu/CourseData/CG_data/Module5/data/vcf/HCC1143.GATK.vcf data/vcf
-less -S data/vcf/HCC1143.GATK.vcf
-```
-
-Given heterozygous SNPs, we now need to extract the reference and alternate allele counts from the bam file.  The script `build_apolloh_allelic_counts_file.py` does this for you.
-
-```
-mkdir -p data/apolloh
-python scripts/build_apolloh_allelic_counts_file.py data/vcf/HCC1143.GATK.vcf \
-    data/apolloh/baf.txt --normal_column 1
-```
-
-The BAF file is a tab delimited file with one row per SNP.
-
-```
-less -S data/apolloh/baf.txt
-```
-
-We are now in a position to run APOLLOH.
-
-```
-mkdir -p results/apolloh
-bash scripts/run_apolloh.sh data/apolloh/baf.txt results/hmmcopy/results/tumour.apolloh.seg \
-    results/apolloh/
-```
-
-There are three files. params.txt contains the APOLLOH model paramters. Most interesting Normal cell contamination
-
-The `params.txt` file contains the APOLLOH model parameters.
-
-```
-less -S results/apolloh/params.txt
-```
-
-The `loh.txt` file contains information about the state of each SNP.
-
-```
-less -S results/apolloh/loh.txt
-```
-
-The `segs.txt` contains information about the segments.
-
-```
-less -S results/apolloh/segs.txt
-```
-
-### OncoSNP-SEQ 
-
-OncoSNP-SEQ is another tool that predicts allele specific copy number of WGS.  The input is a set of SNP positions a pileup file from the tumour and normal genomes.  Pileup files take a considerable amount of time to generate, and the pileups for chromosome 21 have been generated for you.  They provide information of the read bases that match each reference base with one line per position in the genome.
-
-```
-less -S HCC1143/G15511.HCC1143.1.chr21.pileup
-```
-
-The pileups are processed by oncosnpseq using the process_pileup.pl script.  Run these in parallel using the `&`.
-
-```
-mkdir results/oncosnpseq
-perl /usr/local/oncosnpseq/scripts/process_pileup.pl \
-    --infile HCC1143/G15511.HCC1143.1.chr21.pileup \
-    --outfile results/oncosnpseq/tumour.txt \
-    --snpfile genome/oncoseq/bed_chr_21.bed \
-    > results/oncosnpseq/tumour.log &
-perl /usr/local/oncosnpseq/scripts/process_pileup.pl \
-    --infile HCC1143/G15511.HCC1143_BL.1.chr21.pileup \
-    --outfile results/oncosnpseq/normal.txt \
-    --snpfile genome/oncoseq/bed_chr_21.bed \
-    > results/oncosnpseq/normal.log &
-```
-
-OncoSNP-SEQ will be run in a similar way to oncosnp.  For convencience we have provided the run_oncosnpseq.sh.  This will be easier to execute than a large command line.
-
-```
-less -S scripts/run_oncosnpseq.sh
-```
-
-Create an output directory for oncosnpseq.  Run OncoSNP using the script provided.  
-
-We will run OncoSNP in the background since it is slow.  While it goes we can take a few more minutes to study the script for launching it. Please ask questions.
-
-```
-bash scripts/run_oncosnpseq.sh results/oncosnpseq/tumour.txt \
-    results/oncosnpseq/normal.txt HCC1143 results/oncosnpseq/ &
-```
-
-The results are similar to oncosnp and can be found in the module package under `results/oncosnpseq`.
+The `run_titan.R` script will create the directory `results/titan` which contains the TITAN results and plots. 
 
 ## Visualizing Datasets In IGV
 
