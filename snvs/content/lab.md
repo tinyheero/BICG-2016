@@ -10,43 +10,20 @@ Now enter the ~/workspace directory
 cd ~/workspace
 ```
 
-Now we will download the scripts we need for this module from the wiki page.  I have copied the link from the wiki page below. If the command below does not work try copying the link from the wiki and pasting yourself.
+Create a directory for this module and enter this directory:
 
 ```
-wget http://bioinformatics.ca/workshop_wiki/images/7/77/Module6.tar.gz
+mkdir Module6
+cd Module6
 ```
 
-Now we will "unzip" the files.
+Now let's create a link to some helper scripts we will need for this module:
 
 ```
-tar -zxvf Module6.tar.gz
-```
-
-This should create a folder called Module6. Check this is true.
-
-```
-ls -lh
-```
-
-We can now remove the compressed ".tar.gz" file to keep our workspace clean.
-
-```
-rm Module6.tar.gz
-```
-
-Enter the Module6 directory
-
-```
-cd Module6/
+ln -s /home/ubuntu/CourseData/CG_data/Module6/scripts
 ```
 
 ## Environment
-
-Module directory:
-
-```
-MODULE_DIR=/home/ubuntu/CourseData/CG_data/Module6/
-```
 
 MutationSeq install:
 
@@ -60,9 +37,16 @@ SnpEff install:
 SNPEFF_DIR=/usr/local/snpEff
 ```
 
-## Prepare Data
+Summary of all the above environment commands (for copy and pasting convenience):
 
-We will be using the exome data from the HCC1395 breast cancer cell line.  The tumour and normal bam files have been placed on the server. Create a link to the location of the bam files to allow us to access them quickly.
+```
+MUTATIONSEQ_DIR=/usr/local/mutationSeq/
+SNPEFF_DIR=/usr/local/snpEff
+```
+
+## Retrieving the Data
+
+We will be using the same exome data on the  HCC1395 breast cancer cell line that was used in Module 5 (Copy Number Alterations).  The tumour and normal bam files have been placed on the server. Create a link to the location of the bam files to allow us to access them quickly.
 
 ```
 ln -s /home/ubuntu/CourseData/CG_data/HCC1395
@@ -71,24 +55,13 @@ ln -s /home/ubuntu/CourseData/CG_data/HCC1395
 Additionally, we will need the reference genome for the mutation calling. This has also been placed on the server. We shall create a link to this file for easy access:
 
 ```
-ln -s /home/ubuntu/CourseData/CG_data/refdata
+ln -s /home/ubuntu/CourseData/CG_data/ref_data
 ```
 
-We will restrict our analysis to a 1 Mb region (7Mb and 8Mb) within chromosome 17. Use `samtools` to create bam files containing only alignments within this region.  The argument `17:7000000-8000000` specifies the region, and `-b` specifies the output is bam (default output is sam format).
+We will restrict our analysis to a 1 Mb region (7Mb and 8Mb) within chromosome 17. These bam files along with their indices have been generated for you already (please see the data preparation page for details on how to generate these smaller bams):
 
 ```
-mkdir data
-samtools view -b HCC1395/exome/HCC1395_exome_tumour.bam 17:7000000-8000000 \
-    > data/HCC1395_exome_tumour.17.7MB-8MB.bam
-samtools view -b HCC1395/exome/HCC1395_exome_normal.bam 17:7000000-8000000 \
-    > data/HCC1395_exome_normal.17.7MB-8MB.bam
-```
-
-Create an index for each bam file.
-
-```
-samtools index data/HCC1395_exome_tumour.17.7MB-8MB.bam
-samtools index data/HCC1395_exome_normal.17.7MB-8MB.bam
+ls HCC1395/exome/HCC1395_exome*.17*
 ```
 
 If you are unfamiliar with the sam/bam format, take some time to look at the alignments and metadata.
@@ -96,64 +69,72 @@ If you are unfamiliar with the sam/bam format, take some time to look at the ali
 The header information contains information about the reference genome and read groups (per read information about sample/flow cell/lane etc).
 
 ```
-samtools view -H data/HCC1395_exome_tumour.17.7MB-8MB.bam | less -S
+samtools view -H HCC1395/exome/HCC1395_exome_tumour.17.7MB-8MB.bam | less -S
 ```
 
 The main contents of the file contain read alignments, tab separated, one line per alignment.
 
 ```
-samtools view data/HCC1395_exome_tumour.17.7MB-8MB.bam | less -S
+samtools view HCC1395/exome/HCC1395_exome_tumour.17.7MB-8MB.bam | less -S
 ```
 
 Samtools will also calculate statistics about the reads and alignments.  Unfortunately this information is not cached, and thus this command will take considerable time on a regular sized bam.
 
 ```
-samtools flagstat data/HCC1395_exome_tumour.17.7MB-8MB.bam
+samtools flagstat HCC1395/exome/HCC1395_exome_tumour.17.7MB-8MB.bam
 ```
 
 ## Predicting SNVs
 
 ### Strelka
 
-Create a local copy of the strelka config.  Strelka provides aligner specific config files for bwa, eland, and isaac.  Each file contains default configuration parameters that work well with the aligner.  The bam files we are working with were created using bwa, so we select that config file and make a local copy to make changes.
+We will first call mutations using Strelka. Create a local copy of the Strelka config file.  Strelka provides aligner specific config files for bwa, eland, and isaac.  Each file contains default configuration parameters that work well with the aligner.  The bam files we are working with were created using bwa, so we select that config file and make a local copy to make changes.
 
 ```
 mkdir config
 cp /usr/local/etc/strelka_config_bwa_default.ini config/strelka_config_bwa.ini
 ```
 
-Since we will be using Exome data for this, we need to change the `isSkipDepthFilters` parameter in the strelka_config_bwa.ini file. Let's create a new config file for exome analysis:
+Since we will be using exome data for this, we need to change the `isSkipDepthFilters` parameter in the strelka_config_bwa.ini file. Let's create a new config file for exome analysis:
 
 ```
 cp config/strelka_config_bwa.ini config/strelka_config_bwa_exome.ini
 ```
 
-Now let's edit the `config/strelka_config_bwa_exome.ini` and change the `isSkipDepthFilters = 0` to `isSkipDepthFilters = 1`. The reason why we do this is described on the [Strelka FAQ page](https://sites.google.com/site/strelkasomaticvariantcaller/home/faq):
+Now let's edit the `config/strelka_config_bwa_exome.ini` and change the `isSkipDepthFilters = 0` to `isSkipDepthFilters = 1`.  Let's edit the file using the text editor nano:
+
+```
+nano config/strelka_config_bwa_exome.ini
+```
+
+Please let us know if you have any issues editing the file. The reason why we do this is described on the [Strelka FAQ page](https://sites.google.com/site/strelkasomaticvariantcaller/home/faq):
 
 > The depth filter is designed to filter out all variants which are called above a multiple of the mean chromosome depth, the default configuration is set to filter variants with a depth greater than 3x the chromosomal mean. If you are using exome/targeted sequencing data, the depth filter should be turned off...
 > 
 > However in whole exome sequencing data, the mean chromosomal depth will be extremely small, resulting in nearly all variants being (improperly) filtered out.
 
-A strelka analysis is performed in 2 steps.  In the first step we provide Strelka with all the information it requires to run the analysis, including the tumour and normal bam filenames, the config, and the reference genome.  Strelka will create an output directory with the setup required to run the analysis.
+A Strelka analysis is performed in 2 steps.  In the first step we provide Strelka with all the information it requires to run the analysis, including the tumour and normal bam filenames, the config, and the reference genome.  Strelka will create an output directory with the setup required to run the analysis.
 
 ```
-perl $STRELKA_DIR/bin/configureStrelkaWorkflow.pl \
+configureStrelkaWorkflow.pl \
     --tumor HCC1395/exome/HCC1395_exome_tumour.17.7MB-8MB.bam \
-    --normal HCC1395/exome/HCC1395_normal_tumour.17.7MB-8MB.bam \
-    --ref refdata/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa \
+    --normal HCC1395/exome/HCC1395_exome_normal.17.7MB-8MB.bam \
+    --ref ref_data/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa \
     --config config/strelka_config_bwa_exome.ini \
     --output-dir results/strelka/
 ```
 
 The output directory will contain a _makefile_ that can be used with the tool _make_.  One benefit of the makefile style workflow is that it can be easily parallelized using _qmake_ on a grid engine cluster.  
 
-To run the strelka analysis, use make and specify the directory constructed by `configureStrelkaWorkflow.pl` with make's `'-C'` option.
+To run the Strelka analysis, use make and specify the directory constructed by `configureStrelkaWorkflow.pl` with make's `'-C'` option.
 
 ```
-make -C results/strelka/
+make -C results/strelka/ -j 2
 ```
 
-> If you access to a grid engine cluster, you can replace the command `make` with `qmake` to launch Strelka on the cluster.
+The `-j 2` parameter specifies that we want to use 2 cores to run Strelka. Change this number to increase or decrease the parallelization of the job. The more cores the faster the job will be, but the higher the load on the machine that is running Strelka. 
+
+> If you have access to a grid engine cluster, you can replace the command `make` with `qmake` to launch Strelka on the cluster.
 
 Strelka has the benefit of calling SNVs and small indels.  Additionally, Strelka calculates variant quality and filters the data in two tiers.  The filenames starting with `passed` contain high quality candidates, and filenames starting with `all` contain high quality and marginal quality candidates.
 
@@ -166,7 +147,9 @@ less -S results/strelka/results/passed.somatic.indels.vcf
 
 ### MutationSeq
 
-Running MutationSeq is a one step process.  The tumour and normal bam files and reference genome are provided on the command line. MutationSeq uses supervised learning (random forest) to classify each mutation as true or artifact.  The training set consists of over 1000 known true and positive mutations validated by deep SNV sequencing.  The trained model is provided with the mutationseq package, but must be provided on the command line using the `model:` argument.
+Now we will try another mutation caller called MutationSeq. 
+
+Running MutationSeq is a a one step process. MutationSeq uses supervised learning (random forest) to classify each mutation as true or artifact. The training set consists of over 1000 known true and positive mutations validated by deep SNV sequencing. The trained model is provided with the MutationSeq package, but must be provided on the command line using the `model:` argument.
 
 Additional parameters include
 
@@ -177,9 +160,9 @@ Additional parameters include
 ```
 mkdir -p results/mutationseq
 python $MUTATIONSEQ_DIR/classify.py \
-    tumour:data/HCC1395_exome_tumour.17.7MB-8MB.bam \
-    normal:data/HCC1395_normal_tumour.17.7MB-8MB.bam \
-    reference:refdata/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa \
+    tumour:HCC1395/exome/HCC1395_exome_tumour.17.7MB-8MB.bam \
+    normal:HCC1395/exome/HCC1395_exome_normal.17.7MB-8MB.bam \
+    reference:ref_data/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa \
     model:$MUTATIONSEQ_DIR/model_v4.1.1.npz \
     -i 17:7000000-8000000 \
     -c $MUTATIONSEQ_DIR/metadata.config -q 1 -o results/mutationseq/HCC1395.vcf \
