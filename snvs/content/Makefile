@@ -8,9 +8,6 @@ SNPEFF_DIR ?= ~/share/usr/snpEff/snpEff-4.0
 museq : results/museq/HCC1395.museq.vcf results/museq/HCC1395.museq.full.vcf
 museq.table : results/museq/HCC1395.museq.txt
 
-strelka : results/strelka/task.complete results/strelka.full/task.complete
-strelka.table : results/strelka/results/passed.somatic.snvs.txt results/strelka.full/results/passed.somatic.snvs.txt
-
 ####
 ## Mutationseq
 ####
@@ -44,6 +41,9 @@ results/museq/HCC1395.museq.full.vcf :
 ####
 ## Strelka
 ####
+
+strelka : results/strelka/task.complete results/strelka.full/task.complete
+strelka.table : results/strelka/results/passed.somatic.snvs.txt results/strelka.full/results/passed.somatic.snvs.txt
 
 ## Chromosome 17 (7-8 Mb)
 results/strelka/Makefile :
