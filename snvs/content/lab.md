@@ -1,4 +1,4 @@
-# Module 6 Somatic Mutations - Lab
+# Lab Module 6 - Somatic Mutations
 
 ## Setup
 
@@ -162,7 +162,7 @@ less -S results/strelka/results/passed.somatic.indels.vcf
 
 Now we will try another mutation caller called MutationSeq. MutationSeq uses supervised learning (random forest) to classify each mutation as true or artifact. The training set consists of over 1000 known true and positive mutations validated by deep SNV sequencing. The trained model is provided with the MutationSeq package, but must be provided on the command line using the `model:` argument.
 
-Running MutationSeq is a a one step process. 
+Running MutationSeq is a one step process. 
 
 ```
 mkdir -p results/mutationseq
@@ -212,7 +212,7 @@ To convert the MutationSeq VCF file into a tabular format:
 java -jar $SNPEFF_DIR/SnpSift.jar extractFields -e "." results/mutationseq/HCC1395.museq.vcf CHROM POS ID REF ALT QUAL FILTER PR TR TA NR NA TC NI ND > results/mutationseq/HCC1395.museq.txt
 ```
 
-The -e parameter specifies how to represent empty fields. In this case, the "." character is placed for any empty fields. This facilities loading and completeness of data. For more details on the extractField() function see the [SnpSift documentation](http://snpeff.sourceforge.net/SnpSift.html#Extract).
+The -e parameter specifies how to represent empty fields. In this case, the "." character is placed for any empty fields. This facilitates loading and completeness of data. For more details on the extractField() function see the [SnpSift documentation](http://snpeff.sourceforge.net/SnpSift.html#Extract).
 
 ## Data Exploration
 
