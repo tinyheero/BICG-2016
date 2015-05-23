@@ -4,8 +4,11 @@ STRELKA_VERSION ?= 1.0.14
 MUTATIONSEQ_DIR ?= /share/lustre/fong/usr/museq/4.2.1
 STRELKA_DIR ?= /share/lustre/fong/usr/strelka/1.0.14
 SNPEFF_DIR ?= ~/share/usr/snpEff/snpEff-4.0
+REF_FASTA ?= ref_data/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa
 
-museq : results/museq/HCC1395.museq.vcf results/museq/HCC1395.museq.full.vcf
+CHROMOSOMES = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 MT X Y
+
+museq : results/museq/HCC1395.museq.vcf $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.museq.full.$(chr).vcf)
 museq.table : results/museq/HCC1395.museq.txt
 
 ####
@@ -18,20 +21,21 @@ results/museq/HCC1395.museq.vcf :
 	~/share/usr/anaconda/2.1.0/bin/python $(MUTATIONSEQ_DIR)/classify.py \
 	tumour:bam/HCC1395_exome_tumour.17.7MB-8MB.bam \
 	normal:bam/HCC1395_exome_normal.17.7MB-8MB.bam \
-	reference:refdata/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa \
+	reference:$(REF_FASTA) \
 	model:${MUTATIONSEQ_DIR}/model_v4.1.1.npz \
 	-i 17:7000000-8000000 \
 	-c ${MUTATIONSEQ_DIR}/metadata.config -q 1 -o $@ \
 	-l $(@D)/$(@F).log
 
 ## Whole genome
-results/museq/HCC1395.museq.full.vcf : 
+results/museq/HCC1395.museq.full.%.vcf : 
 	mkdir -p $(@D); \
 	~/share/usr/anaconda/2.1.0/bin/python $(MUTATIONSEQ_DIR)/classify.py \
 	tumour:bam/HCC1395_exome_tumour.bam \
 	normal:bam/HCC1395_exome_normal.bam \
-	reference:refdata/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa \
+	reference:$(REF_FASTA) \
 	model:${MUTATIONSEQ_DIR}/model_v4.1.1.npz \
+	-i $* \
 	-c ${MUTATIONSEQ_DIR}/metadata.config -q 1 -o $@ \
 	-l $(@D)/$(@F).log --all 
 
