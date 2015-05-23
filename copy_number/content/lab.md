@@ -271,7 +271,12 @@ The last file we will look at is the .cnv file. This is essentially a more infor
 less -S results/oncosnp/HCC1395.cnvs
 ```
 
-The final interesting file that OncoSNP produces is the plots HCC1395.*.ps.gz.  This file can be found in the module package under `content/figures/oncosnp` in case you have trouble copying the file from your Amazon instance.
+The final interesting file that OncoSNP produces is the plots HCC1395.*.ps.gz.  Download this file from:
+
+```
+http://cbwxx.dyndns.info/Module5/results/oncosnp
+```
+Try to open up and visualize the chromosome plots from OncoSNP. 
 
 ## Analysis Of CNAs using Sequencing Data
 
