@@ -25,7 +25,7 @@ ln -s /home/ubuntu/CourseData/CG_data/Module5/scripts
 
 ## Environment
 
-In this section, we will set some environment variables to help facilitate the execution of commands. These variables will set to the location of some important files we need for the commands in this module. One important thing to remember is that:
+In this section, we will set some environment variables to help facilitate the execution of commands. These variables will set the location of some important files we need for the commands in this module. One important thing to remember is that:
 
 > These variables that you set will only persist in this current session you are in. If you log out and log back into the server, you will have to set these variables again.
 
@@ -271,7 +271,12 @@ The last file we will look at is the .cnv file. This is essentially a more infor
 less -S results/oncosnp/HCC1395.cnvs
 ```
 
-The final interesting file that OncoSNP produces is the plots HCC1395.*.ps.gz.  This file can be found in the module package under `content/figures/oncosnp` in case you have trouble copying the file from your Amazon instance.
+The final interesting file that OncoSNP produces is the plots HCC1395.*.ps.gz.  Download this file from:
+
+```
+http://cbwxx.dyndns.info/Module5/results/oncosnp
+```
+Try to open up and visualize the chromosome plots from OncoSNP. If you have trouble opening these files, then you can also download them from the wiki. 
 
 ## Analysis Of CNAs using Sequencing Data
 
@@ -281,7 +286,7 @@ The sample we will be using is the same breast cancer cell line we used for the 
 
 ### Fetch Sequencing Data
 
-The raw sequencing data has been downloaded and aligned for you (See data preparation). Create a hardlink to the folder containing these data (if not already completed from the "Analysis of CNA using Microarray Data" section already)
+The raw sequencing data has been downloaded and aligned for you (See data preparation). Create a hardlink to the folder containing these data (if not already completed from the "Analysis of CNA using Array" section already)
 
 ```
 ln -s /home/ubuntu/CourseData/CG_data/HCC1395
@@ -289,7 +294,7 @@ ln -s /home/ubuntu/CourseData/CG_data/HCC1395
 
 ### Get Input Data
 
-We will be using TITAN, available as a R Bioconductor package (TitanCNA) for the copy number analysis. The program has the ability to perform the normalization, extraction of LRR/BAF, and calling of CNAs. But before we can use TITAN, we need to retrieve a few input files:
+We will be using TITAN, available as a R Bioconductor package (TitanCNA), for the copy number analysis. The program has the ability to perform the normalization, extraction of LRR/BAF, and calling of CNAs. But before we can use TITAN, we need a few input files:
 
 1. Tumour/Normal read count data
 	* Total number of reads within a bin size (default 1000) across the genome
@@ -298,7 +303,7 @@ We will be using TITAN, available as a R Bioconductor package (TitanCNA) for the
 3. Genome reference mappability file
 4. Genome reference GC content file
 
-Generating these files can take a bit of time. So for this lab, they have been already been generated for you and can be copied for running (Please see the data preparation page for details on how these files were generated).
+Generating these files can take a bit of time. So for this lab, they have been already been generated for you and can be copied for running (Please see the "Data Preparation" page for details on how these files were generated).
 
 Copy the tumour and normal read count data:
 
@@ -328,7 +333,7 @@ Once these input files have been retrieved/generated, we can now run TITAN. An R
 Rscript scripts/run_titan.R &> run_titan.log &
 ```
 
-Just like the oncosnp run, this will run in the background. You can check the progress of the job by going:
+Just like the OncoSNP run, this will run in the background. You can check the progress of the job by going:
 
 ```
 less -S run_titan.log
@@ -348,6 +353,14 @@ http://cbwxx.dyndns.info/Module5/results/titan
 
 Where the xx is your student number. The `HCC1395_exome_tumour.{1..22}.png` are the per-chromosome TITAN plots.
 
+Segment and IGV compatible segment (.seg) files can be generated using a Perl script:
+
+```
+perl scripts/createTITANsegmentfiles.pl -id=test -infile=results/titan/HCC1395_exome_tumour.results.txt -outfile=results/titan/HCC1395_exome_tumour.results.segs.txt -outIGV=results/titan/HCC1395_exome_tumour.results.segs
+```
+
+These segment .seg will be discussed at the end of this lab.
+
 ### Exome vs. Genome
 
 The workflow for applying TITAN to genome is the same as applying it to exomes. The only difference is that you don't need to specify the capture region in genomes as you do in exomes. This occurs in the `scripts/run_titan.R` specially at line 24:
@@ -358,6 +371,10 @@ cnData <- correctReadDepth(tumWig, normWig, gcWig, mapWig, genomeStyle = "NCBI",
 
 Where the `targetedSequence` parameter specifies the capture space. If you are using genomes, then don't specify this parameter. Everything else should be the same.
 
-## Visualizing Datasets In IGV
+## Visualizing SEG  In IGV
+
+Both OncoSNP and TITAN will produce 
+The SEG format for copy number has become a de facto standard format for reporting copy number results. You can go to the [IGV website](https://www.broadinstitute.org/igv/SEG) for more specific details regarding the SEG format. We will visualize a SEG file at the end of this lab.
+
 
 For this part please download the METABRIC dataset from the wiki and open it in IGV.

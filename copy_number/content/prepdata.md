@@ -11,9 +11,30 @@ The following environment variables are required.
 `PICARD_DIR=/usr/local/picard` picard tools binaries directory
 `HMMCOPY_DIR=/usr/local/HMMcopy` hmm copy binaries directory
 
-## Affymetrix SNP 6.0 HCC1143 cell line data
+Bcftools install:
 
-The cel files containing the probe intensity data for cell line HCC1143 can be downloaded as follows.
+```
+SAMTOOLS_DIR=/usr/local/opt/samtools
+```
+
+SnpEff install:
+
+```
+SNPEFF_DIR=/usr/local/snpEff
+```
+
+Summary of all the above environment commands (for copy and pasting convenience):
+
+```
+SAMTOOLS_DIR=/usr/local/opt/samtools
+SNPEFF_DIR=/usr/local/snpEff
+```
+
+## Geting/Preparing Data for Sequencing Analysis
+
+## Affymetrix SNP 6.0 HCC1395 cell line data
+
+The cel files containing the probe intensity data for cell line HC1395 can be downloaded as follows.
 
     mkdir -p data/cel
     cd data/cel
@@ -21,31 +42,6 @@ The cel files containing the probe intensity data for cell line HCC1143 can be d
     wget ftp://ftp.ncbi.nlm.nih.gov/geo/samples/GSM337nnn/GSM337641/suppl/GSM337641%2ECEL%2Egz
     gunzip *.gz
     cd ../..
-
-## Whole genome sequencing HCC1143 cell line data
-
-The WGS HCC1143 cell line data can be downloaded from the [TCGA benchmarking website](https://cghub.ucsc.edu/datasets/benchmark_download.html).  The downloading instructions on the website are reproduced here.
-
-You require the [GeneTorrent](https://cghub.ucsc.edu/software/downloads.html) software to download the data.  If you are running Ubuntu 13.10 download the binaries as follows.  Note that GeneTorrent depends on [boost](http://www.boost.org/).
-
-    wget https://cghub.ucsc.edu/software/downloads/GeneTorrent/3.8.5a/GeneTorrent-download-3.8.5a-94-Ubuntu13.10.x86_64.tar.gz
-    tar -xzvf GeneTorrent-download-3.8.5a-94-Ubuntu13.10.x86_64.tar.gz
-
-The tumour and normal HCC1143 data is the first on the list on the TCGA benchmarking website.  Download the xml uuid files as follows.
-
-    wget --no-check-certificate https://cghub.ucsc.edu/cghub/metadata/analysisAttributes?analysis_id=ad3d4757-f358-40a3-9d92-742463a95e88 -O ad3d4757-f358-40a3-9d92-742463a95e88.xml
-    wget --no-check-certificate https://cghub.ucsc.edu/cghub/metadata/analysisAttributes?analysis_id=f0eaa94b-f622-49b9-8eac-e4eac6762598 -O f0eaa94b-f622-49b9-8eac-e4eac6762598.xml
-
-Download the bam files using GeneTorrent.
-
-    gtdownload -c https://cghub.ucsc.edu/software/downloads/cghub_public.key -vv -d ad3d4757-f358-40a3-9d92-742463a95e88.xml
-    gtdownload -c https://cghub.ucsc.edu/software/downloads/cghub_public.key -vv -d f0eaa94b-f622-49b9-8eac-e4eac6762598.xml
-
-The files will appear in two subdirectories named after the uuid for each dataset.  For convencience, move the files to a subdirectory named HCC1143.
-
-    mkdir HCC1143
-    mv ad3d4757-f358-40a3-9d92-742463a95e88/* HCC1143
-    mv f0eaa94b-f622-49b9-8eac-e4eac6762598/* HCC1143
 
 ## Whole genome sequencing reference genome
 
@@ -139,3 +135,34 @@ Download the GC content files from the [OncoSNP-SEQ google sites page](https://s
     wget --no-check-certificate "https://doc-08-7c-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/b3vbuuo4e743kg87p1qehbamqsft7lpo/1401026400000/03938588792210094527/*/0B_XFGmx3odi4MzlPTjhqTlktS3c?h=16653014193614665626&e=download" -O b37.tar.gz
     tar -xzvf b37.tar.gz
 
+# Preparing Data of Sequencing 
+
+As mentioned in the lab, we need the following ...
+
+## Calculate tumour and normal read depth using HMMCopy
+
+Copy number prediction is based on read depth.  Calculate read depth for the tumour and normal bam files and store in `.wig` format.  We use the -c parameter to specify all autosome chromosomes:
+
+```
+mkdir -p hmmCopy/wig 
+/usr/bin/readCounter -c 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22 HCC1395/exome/HCC1395_exome_tumour.bam \ 
+	> hmmCopy/wig/HC1395_exome_tumour.wig
+/usr/bin/readCounter -c 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22 HCC1395/exome/HCC1395_exome_normal.bam \
+	> hmmCopy/wig/HC1395_exome_normal.wig 
+```
+
+## Retrieve allele counts of heterozygous positions from the tumour and normal
+
+The next step we need to do is retrieve the allele count data from heterozygous positions in both the tumour and normal. The first we will do is get a list of all heterozygous positions in the normal:
+
+```
+mkdir -p titan/bcftools/vcf 
+$SAMTOOLS_DIR/samtools mpileup -u -I -f ref_data/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa HCC1395/exome/HCC1395_exome_normal.bam | \
+	$SAMTOOLS_DIR/bcftools/bcftools view -vcg - | \
+	java -jar $SNPEFF_DIR/SnpSift.jar filter "isHet(GEN[0]) & (QUAL >= 20)" > \
+	titan/bcftools/vcf/HCC1395_exome_normal.var.het.vcf
+```
+
+Here we used samtools and bcftools (1.18) to retrieve these positions. We impose a `QUAL>=20` filter that only retrieves positions with a quality of > 20 to enhance quality. You can use other programs (e.g. GATK) to retrieve these heterozygous positions. 
+
+Now that we have the 

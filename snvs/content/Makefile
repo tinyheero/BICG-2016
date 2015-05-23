@@ -74,3 +74,6 @@ results/strelka.full/task.complete : results/strelka.full/Makefile
 
 %.somatic.snvs.txt : %.somatic.snvs.vcf
 	java -jar $(SNPEFF_DIR)/SnpSift.jar extractFields -e "." $< CHROM POS ID REF ALT QUAL QSS FILTER TQSS NT QSS_NT TQSS_NT SGT SOMATIC GEN[0].DP GEN[1].DP GEN[0].FDP GEN[1].FDP GEN[0].SDP GEN[1].SDP GEN[0].SUBDP GEN[1].SUBDP GEN[0].AU GEN[1].AU GEN[0].CU GEN[1].CU GEN[0].GU GEN[1].GU GEN[0].TU GEN[1].TU > $@
+
+%.html : %.Rmd
+	Rscript --slave -e "rmarkdown::render('$<')"
