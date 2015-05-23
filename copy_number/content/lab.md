@@ -2,7 +2,7 @@
 
 ## Setup
 
-First login into the cloud.
+First login into the server.
 
 Now enter the ~/workspace directory
 
@@ -23,39 +23,42 @@ Now let's create a link to some helper scripts we will need for this module:
 ln -s /home/ubuntu/CourseData/CG_data/Module5/scripts
 ```
 
-
 ## Environment
 
+In this section, we will set some environment variables to help facilitate the execution of commands. These variables will set to the location of some important files we need for the commands in this module. One important thing to remember is that:
+
+> These variables that you set will only persist in this current session you are in. If you log out and log back into the server, you will have to set these variables again.
+
 ```
-INSTALL_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/
+INSTALL_DIR=/home/ubuntu/CourseData/CG_data/Module5/install
 ```
 
-Normalization files:
+Set the directory to where the Affymetrix SNP 6.0 normalization files are:
 
 ```
 GW6_DIR=$INSTALL_DIR/gw6
 ```
 
-Affimetrix power tools:
+Set the directory to where Affymetrix power tools is installed:
 
 ```
 APT_DIR=$INSTALL_DIR/apt-1.17.0-x86_64-intel-linux
 ```
 
-Cell definition file for SNP6.0:
+Set the path to cell definition file for Affymetrix SNP 6.0:
 
 ```
 SNP6_CDF=$INSTALL_DIR/GenomeWideSNP_6.cdf
 ```
 
-Oncosnp and oncosnp-seq locations:
+Oncosnp locations:
 
 ```
 export ONCOSNP_DIR=/usr/local/oncosnp
 export MCR_DIR=/home/ubuntu/CourseData/software/MATLAB/MCR/v82
 ```
 
-GC content files for oncosnp and oncosnpseq:
+GC content files for oncosnp:
 
 ```
 export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b37
@@ -69,7 +72,6 @@ GW6_DIR=$INSTALL_DIR/gw6
 APT_DIR=$INSTALL_DIR/apt-1.17.0-x86_64-intel-linux
 SNP6_CDF=$INSTALL_DIR/GenomeWideSNP_6.cdf
 export ONCOSNP_DIR=/usr/local/oncosnp
-export ONCOSNPSEQ_DIR=/usr/local/oncosnpseq/
 export MCR_DIR=/home/ubuntu/CourseData/software/MATLAB/MCR/v82
 export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b37
 ```
@@ -157,7 +159,14 @@ less -S results/array/gw6.GSM888107
 | SNP_A-4264431 | 1   | 2951834  | -0.1812                   | 0.0272                      |
 | SNP_A-1980898 | 1   | 3095126  | 0.0830                    | 0.9793                      |
 
-### Step 3 - Call CNV
+The OncoSNP manual recommends only using the SNP probes and not the CNA probes for analysis. This is because the CNA probes only give you information on one allele and thus may confound the analysis. You can refer the "Can I use Affymetrix data?" question in the [FAQ section](https://sites.google.com/site/oncosnp/frequently-asked-questions) for more information about this.
+
+```
+grep -v -P 'CN_\d+' results/array/gw6.GSM888107 > results/array/gw6.GSM888107.snp_probes
+```
+
+
+### Step 3 - Call CNA
 
 Now that we have the BAF and LRR data we will use OncoSNP to analyze this data.  Create a working directory for OncoSNP.
 
@@ -170,7 +179,7 @@ OncoSNP has many command line parameters, and most will not change between runs 
 ```
 $ONCOSNP_DIR/run_oncosnp.sh $MCR_DIR \
 	--sampleid HCC1395 \
-	--tumour-file results/array/gw6.GSM888107 \
+	--tumour-file results/array/gw6.GSM888107.snp_probes \
 	--output-dir results/oncosnp \
 	--fulloutput --plot \
 	--gcdir $GC_DIR \
@@ -192,6 +201,7 @@ Some important parameters to consider:
 * --chr: Specify the chromosome you want to run on. In this example, we run only on chromosome 21 since it can take awhile for the whole genome. Don't specify this parameter for whole genome analysis.
 * --stroma: This parameter can be specified for normal content adjustment. As this is a cell-line, we did not set this. 
 * --intratumor: This parameter can be specified for correcting intratumor heterogeneity. As this is a cell-line, we did not set this. 
+* --normal-file: If you have a matching normal, you can specify it here. OncoSNP will then perform a paired analysis mode. As we have no matching normal here, we leave this parameter unspecified.
 
 The `&` character at the end of the above command sends the job to run in the background. Rather then print the progress of the job to screen, this command will send output of OncoSNP to a log file. We can monitor the progress of the program by examining this file.
 
@@ -229,7 +239,7 @@ When the program finishes we can go to the output folder and browse the results.
 ls -lh results/oncosnp
 ```
 
-The first key file is the .qc file which outputs some basic quality control values and some parameters. Probably the most interesting value is the stromal contamination i.e. fraction of normal cells. Two values are reported by default because OncoSNP does multiple analysis runs. The first value is the most probable.
+The first key file is the .qc file which outputs some basic quality control values and some parameters. Probably the most interesting value is the stromal contamination i.e. fraction of normal cells. Two values are reported by default because OncoSNP does multiple analysis runs (initialized two different baseline ploidy configurations: diploid and non-diploid). The first value is the most probable.
 
 ```
 less -S results/oncosnp/HCC1395.qc
@@ -279,15 +289,16 @@ ln -s /home/ubuntu/CourseData/CG_data/HCC1395
 
 ### Get Input Data
 
-We will be using TITAN, available as a R bioconductor package (TitanCNA) for the copy number analysis. The program has the ability to perform the normalization, extraction of LRR/BAF, and calling of CNV. But before we can use TITAN, we need to retrieve a few input files:
+We will be using TITAN, available as a R Bioconductor package (TitanCNA) for the copy number analysis. The program has the ability to perform the normalization, extraction of LRR/BAF, and calling of CNAs. But before we can use TITAN, we need to retrieve a few input files:
 
-1. Tumour read count data
-2. Normal read count data
-3. Tumour allele counts for normal heterozygous positions
-4. Genome reference mappability file
-5. Genome reference GC content file
+1. Tumour/Normal read count data
+	* Total number of reads within a bin size (default 1000) across the genome
+2. Tumour allele counts for normal heterozygous positions
+	* Number of reads that support the different alleles at the heterozygous positions
+3. Genome reference mappability file
+4. Genome reference GC content file
 
-Generating these files can take a bit of time. So for this lab, they have been already been generated for you and can be copied for running (Please see the data preparation page for details on how these files were generated
+Generating these files can take a bit of time. So for this lab, they have been already been generated for you and can be copied for running (Please see the data preparation page for details on how these files were generated).
 
 Copy the tumour and normal read count data:
 
@@ -311,7 +322,7 @@ ln -s /home/ubuntu/CourseData/CG_data/ref_data
 
 ### Running TITAN
 
-Once these input files have been retrieved/generated, we can now run TITAN. A R script `scripts/run_titan.R` is provided to run TITAN.
+Once these input files have been retrieved/generated, we can now run TITAN. An R script `scripts/run_titan.R` is provided to run TITAN.
 
 ```
 Rscript scripts/run_titan.R &> run_titan.log &
@@ -323,15 +334,30 @@ Just like the oncosnp run, this will run in the background. You can check the pr
 less -S run_titan.log
 ```
 
-This will take a few minutes to run. Take this time to review the script itself. Please any questions regarding the content of the script:
+This will take a few minutes to run. Take this time to review the script itself. Please ask any questions regarding the content of the script:
 
 ```
 less -S scripts/run_titan.R
 ```
 
-The `run_titan.R` script will create the directory `results/titan` which contains the TITAN results and plots. 
+This script will create the directory `results/titan` which contains the TITAN results and plots. You should be able to view these plots by going to the link in your web browser:
+
+`````
+http://cbwxx.dyndns.info/Module5/results/titan
+```
+
+Where the xx is your student number. The `HCC1395_exome_tumour.{1..22}.png` are the per-chromosome TITAN plots.
+
+### Exome vs. Genome
+
+The workflow for applying TITAN to genome is the same as applying it to exomes. The only difference is that you don't need to specify the capture region in genomes as you do in exomes. This occurs in the `scripts/run_titan.R` specially at line 24:
+
+```
+cnData <- correctReadDepth(tumWig, normWig, gcWig, mapWig, genomeStyle = "NCBI", targetedSequence = exomeCaptureSpaceDf)
+```
+
+Where the `targetedSequence` parameter specifies the capture space. If you are using genomes, then don't specify this parameter. Everything else should be the same.
 
 ## Visualizing Datasets In IGV
 
 For this part please download the METABRIC dataset from the wiki and open it in IGV.
-
