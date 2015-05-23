@@ -1,14 +1,19 @@
+include ~/share/modules/Makefile.inc 
+
+LOGDIR ?= log
+
 STRELKA_VERSION ?= 1.0.14
 .PHONY : strelka museq
 
-MUTATIONSEQ_DIR ?= /share/lustre/fong/usr/museq/4.2.1
-STRELKA_DIR ?= /share/lustre/fong/usr/strelka/1.0.14
-SNPEFF_DIR ?= ~/share/usr/snpEff/snpEff-4.0
-REF_FASTA ?= ref_data/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa
+MUTATIONSEQ_DIR = /share/lustre/fong/usr/museq/4.2.1
+STRELKA_DIR = /share/lustre/fong/usr/strelka/1.0.14
+SNPEFF_DIR = ~/share/usr/snpEff/snpEff-4.0
+REF_FASTA = ref_data/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa
 
 CHROMOSOMES = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 MT X Y
 
-museq : results/museq/HCC1395.museq.vcf $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.museq.full.$(chr).vcf)
+museq : results/museq/HCC1395.museq.vcf
+museq.full : $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.museq.full.$(chr).vcf)
 museq.table : results/museq/HCC1395.museq.txt
 
 ####
@@ -29,15 +34,14 @@ results/museq/HCC1395.museq.vcf :
 
 ## Whole genome
 results/museq/HCC1395.museq.full.%.vcf : 
-	mkdir -p $(@D); \
-	~/share/usr/anaconda/2.1.0/bin/python $(MUTATIONSEQ_DIR)/classify.py \
-	tumour:bam/HCC1395_exome_tumour.bam \
-	normal:bam/HCC1395_exome_normal.bam \
-	reference:$(REF_FASTA) \
-	model:${MUTATIONSEQ_DIR}/model_v4.1.1.npz \
-	-i $* \
-	-c ${MUTATIONSEQ_DIR}/metadata.config -q 1 -o $@ \
-	-l $(@D)/$(@F).log --all 
+	$(call LSCRIPT_MEM_DRMAA,2G,4G,"~/share/usr/anaconda/2.1.0/bin/python $(MUTATIONSEQ_DIR)/classify.py -b 2G tumour:HCC1395/exome/HCC1395_exome_tumour.bam normal:HCC1395/exome/HCC1395_exome_normal.bam reference:$(REF_FASTA) model:$(MUTATIONSEQ_DIR)/model_v4.1.1.npz -i $* -c $(MUTATIONSEQ_DIR)/metadata.config -q 1 -o $@ -l $(@D)/$(@F).log --all")
+
+# merge all the position_file chunks into one file
+results/museq/HCC1395.museq.full.vcf : $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.museq.full.$(chr).vcf)
+	grep '#' $< > $@;\
+	for file in $^; do\
+		grep -v '#' $${file} >> $@;\
+	done
 
 %.museq.txt : %.museq.vcf
 	java -jar $(SNPEFF_DIR)/SnpSift.jar extractFields -e "." $< CHROM POS ID REF ALT QUAL FILTER PR TR TA NR NA TC NI ND > $@
