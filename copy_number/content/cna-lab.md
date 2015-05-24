@@ -339,27 +339,21 @@ Just like the OncoSNP run, this will run in the background. You can check the pr
 less -S run_titan.log
 ```
 
-This will take a few minutes to run. Take this time to review the script itself. Please ask any questions regarding the content of the script:
+Press "q" to escape the less command when you are done viewing. This will take a few minutes to run. Take this time to review the script itself. Please ask any questions regarding the content of the script:
 
 ```
 less -S scripts/run_titan.R
 ```
 
-This script will create the directory `results/titan` which contains the TITAN results and plots. You should be able to view these plots by going to the link in your web browser:
+This script will create the directory `results/titan` which contains the TITAN results. This script will generate plots, but requires X11 forwarding to work since we are working on a server. For demonstration purposes, the corresponding chromosome plots for this run can be downloaded on the wiki.
 
-`````
-http://cbwxx.dyndns.info/Module5/results/titan
-```
-
-Where the xx is your student number. The `HCC1395_exome_tumour.{1..22}.png` are the per-chromosome TITAN plots.
-
-Segment and IGV compatible segment (.seg) files can be generated using a Perl script:
+Additionally segment and IGV compatible segment (.seg) files can be generated using a Perl script:
 
 ```
 perl scripts/createTITANsegmentfiles.pl -id=test -infile=results/titan/HCC1395_exome_tumour.results.txt -outfile=results/titan/HCC1395_exome_tumour.results.segs.txt -outIGV=results/titan/HCC1395_exome_tumour.results.segs
 ```
 
-These segment .seg will be discussed at the end of this lab.
+The relevance of these segment .seg files will be discussed at the end of this lab.
 
 ### Exome vs. Genome
 
@@ -371,10 +365,8 @@ cnData <- correctReadDepth(tumWig, normWig, gcWig, mapWig, genomeStyle = "NCBI",
 
 Where the `targetedSequence` parameter specifies the capture space. If you are using genomes, then don't specify this parameter. Everything else should be the same.
 
-## Visualizing SEG  In IGV
+## Visualizing Seg Files in IGV
 
-Both OncoSNP and TITAN will produce 
-The SEG format for copy number has become a de facto standard format for reporting copy number results. You can go to the [IGV website](https://www.broadinstitute.org/igv/SEG) for more specific details regarding the SEG format. We will visualize a SEG file at the end of this lab.
+Both OncoSNP and TITAN will produce sample-specific chromosome plots of the copy number data. If you are comparing across multiple samples, you can use the .seg files for this. This format for copy number has become a de facto standard format for reporting copy number results. You can go to the [IGV website](https://www.broadinstitute.org/igv/SEG) for more specific details regarding the SEG format. 
 
-
-For this part please download the METABRIC dataset from the wiki and open it in IGV.
+The seg file from the METABRIC can be downloaded from the wiki and opened in IGV for visualizing.
