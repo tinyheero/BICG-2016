@@ -37,8 +37,10 @@ data-analysis-package.tar.gz :
 ## HCC1395 SNP 6.0 Microarray (http://165.112.7.20/geo/query/acc.cgi?acc=GSM888107) from the CCLE
 ###
 
+ONCOSNP_TUMOUR_STATES = ~/share/usr/oncosnp/1.3/configuration/tumourStates.dat
+
 oncosnp :
-	$(MAKE) -f ~/share/modules/oncosnp.mk ONCOSNP_VERSION=1.3 STROMA=false INTRATUMOUR=false oncosnp
+	$(MAKE) -f ~/share/modules/oncosnp.mk ONCOSNP_VERSION=1.3 STROMA=false INTRATUMOUR=false ONCOSNP_TUMOUR_STATES=$(ONCOSNP_TUMOUR_STATES) oncosnp
 
 ###
 ## HMMCopy
@@ -133,6 +135,9 @@ titan.timestamp :
 
 # Merges the different plots per-chromosomes into a single pdf document for easy viewing
 # Individual per-chromosome png files are removed once merged 
-titan/results/HCC1395_exome_tumour.all.pdf : $(foreach chr,$(CHROMOSOMES),titan/results/HCC1395_exome_tumour.$(chr).png)
+results/titan/HCC1395_exome_tumour.all.pdf : $(foreach chr,$(CHROMOSOMES),results/titan/HCC1395_exome_tumour.$(chr).png)
 	convert $^ $@
+
+results/titan/HCC1395_exome_tumour.results.segs.timestamp : results/titan/HCC1395_exome_tumour.results.txt
+	perl ../scripts/createTITANsegmentfiles.pl -id=HCC1395 -infile=$< -outfile=results/titan/HCC1395_exome_tumour.results.segs.txt -outIGV=results/titan/HCC1395_exome_tumour.results.segs && touch $@
 
