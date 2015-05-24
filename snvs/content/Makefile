@@ -16,6 +16,14 @@ museq : results/museq/HCC1395.museq.vcf
 museq.full : $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.museq.full.$(chr).vcf)
 museq.table : results/museq/HCC1395.museq.txt
 
+
+# convert markdown into a mediawiki format to upload onto the CBW wiki
+snv-lab.wiki : 
+	pandoc -t mediawiki -o snv-lab.wiki snv-lab.md
+
+data-analysis-package.tar.gz : 
+	tar -cvzf data-analysis-package.tar.gz --exclude=Makefile data-analysis-package
+
 ####
 ## Mutationseq
 ####
