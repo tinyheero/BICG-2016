@@ -24,13 +24,13 @@ comma := ,
 
 INIT = mkdir -p $(@D); set -o pipefail;
 
-### 
-## Lab Wiki
-###
-
+# --- Lab Wiki ---
 # convert markdown into a mediawiki format to upload onto the CBW wiki
-lab.wiki : 
-	pandoc -t mediawiki -o lab.wiki lab.md
+copy-number-lab.wiki : 
+	pandoc -t mediawiki -o copy-number-lab.wiki copy-number-lab.md
+
+data-analysis-package.tar.gz : 
+	tar -cvzf data-analysis-package.tar.gz --exclude=Makefile data-analysis-package
 
 ###
 ## Oncosnp
