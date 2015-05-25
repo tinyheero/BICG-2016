@@ -24,7 +24,7 @@ snv-lab.wiki :
 	pandoc -t mediawiki -o snv-lab.wiki snv-lab.md
 
 snv-data-analysis-package.tar.gz : 
-	tar -cvzf snv-data-analysis-package.tar.gz --exclude=Makefile --exclude=*.swp snv-data-analysis-package
+	tar -cvzf snv-data-analysis-package.tar.gz --exclude=Makefile --exclude=*.swp --exclude=.gitignore snv-data-analysis-package
 
 ####
 ## Mutationseq
