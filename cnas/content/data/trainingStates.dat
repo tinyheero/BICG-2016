@@ -1,0 +1,5 @@
+TumourState	Normal Copy Number	Tumour Copy Number	LOH	Balanced Amplification	Germline	NormalBalleles1	NormalBalleles2	NormalBalleles3	NormalBalleles4	TumourBalleles1	TumourBalleles2	TumourBalleles3	TumourBalleles4	Comment
+1	2	0	0	0	0	0	1	1	2	0	0	0	0	Homozygous Deletion
+1	2	2	0	0	0	0	1	1	2	0	0	2	2	Hemizygous Deletion (A, B)
+0	2	2	0	0	1	0	1	1	2	0	1	1	2	Normal (AA, AB, BB)
+1	2	2	2	0	1	0	0	2	2	0	0	2	2	2n Germline LOH (AA, BB)

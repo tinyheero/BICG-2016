@@ -1,0 +1,12 @@
+TumourState	Normal Copy Number	Tumour Copy Number	LOH	Balanced Amplification	Germline	NormalBalleles1	NormalBalleles2	NormalBalleles3	NormalBalleles4	TumourBalleles1	TumourBalleles2	TumourBalleles3	TumourBalleles4	Comment
+1	2	0	0	0	0	0	1	1	2	0	0	0	0	Homozygous Deletion
+1	2	1	1	0	0	0	1	1	2	0	0	1	1	"Hemizygous Deletion (A, B)"
+0	2	2	0	0	0	0	1	1	2	0	1	1	2	"Normal (AA, AB, BB)"
+1	2	3	0	0	0	0	1	1	2	0	1	2	3	"3n duplication (AAA, AAB, ABB, BBB)"
+1	2	4	0	0	0	0	1	1	2	0	1	3	4	"4n monoallelic duplication (AAAA, ABBB, AAAB, BBBB)"
+1	2	2	1	0	0	0	1	1	2	0	0	2	2	"2n Somatic LOH (AA, BB)"
+1	2	3	1	0	0	0	1	1	2	0	0	3	3	"3n Somatic LOH (AAA, BBB)"
+1	2	4	1	0	0	0	1	1	2	0	0	4	4	"4n Somatic LOH (AAAA, BBBB)"
+1	2	2	2	0	1	0	0	2	2	0	0	2	2	"2n Germline LOH (AA, BB)"
+1	2	3	2	0	1	0	0	2	2	0	0	3	3	"3n Germline LOH (AAA, BBB)"
+1	2	4	2	0	1	0	0	2	2	0	0	4	4	"4n Germline LOH (AAAA, BBBB)"

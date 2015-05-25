@@ -1,0 +1,134 @@
+---
+title: "Lab Module 5 - Analyze CNA Data"
+author: "Fong Chun Chan"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+---
+
+# Introduction
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+Inside of RStudio when you click the **Knit** button in the document, it will be generate an html includes both content as well as the output of any embedded R code chunks within the document. 
+
+We will be using this R Markdown document to explore the SNV data from HCC1395 in more detail. First let's load some packages that are needed
+
+```{r setup, message = FALSE}
+library("data.table")
+library("ggplot2")
+library("plyr")
+library("dplyr")
+library("stringr")
+library("knitr")
+```
+
+# OncoSNP Analysis
+
+Let's load the OncoSNP data. 
+
+```{r}
+# load the modified OncoSNP cnvs file
+# this file has LRR and BAF values added for each segment
+oncosnpDt <- fread("HCC1395.logR.baf.cnvs")
+oncosnpDt <- oncosnpDt[, chr := factor(chr, levels = c(1:22, "X"))]
+
+# summarize the tumour states more broadly
+# this allows for easier visualization of the data
+# as this is a cell-line, we treat all germline states as somatic
+oncosnpDt <- oncosnpDt %>%
+	mutate(state.modified = ifelse(state == 1, "HOMD", 
+													ifelse(state == 2, "HETD",
+													ifelse(state == 3, "NEU",
+													ifelse(state == 4, "3N_GAIN",
+													ifelse(state %in% c(5:13), "4-8N_GAIN",
+													ifelse(state %in% c(14:20), "LOH",
+													ifelse(state %in% c(21:28), "LOH", NA))))))))
+
+# generate the length of each chromosome
+chrLenDt <- oncosnpDt %>%
+	mutate(segLen = end - start + 1) %>%
+	group_by(chr) %>%
+	summarize(chrLen = sum(segLen))
+
+# set colors for each copy number state
+states.col <- c("HOMD" = "#1F78B4",
+								"HETD" = "#A6CEE3", 
+								"NEU" = "lightgrey", 
+								"3N_GAIN" = "#FB9A99", 
+								"4-8N_GAIN" = "#E31A1C", 
+								"LOH" = "#33A02C",
+								"GERMLINE" = "#006837")
+
+oncosnpDt.qc <- fread("HCC1395.qc")
+
+# rename columns more easier processing downstream
+setnames(oncosnpDt.qc, 
+				 c("Log-likelihood", "LogRRatioShift", "Copy Number (Average)"), 
+				 c("loglikelihood", "LRR.shift", "ploidy"))
+```
+
+## Quality Control
+
+Let's first take a look at the quality control metrics from OncoSNP
+
+```{r}
+kable(oncosnpDt.qc)
+```
+
+This table informs us on the statistics of the two OncoSNP runs. That is:
+
+1. One run initialized to diploid
+2. One run initialized to non-diploid
+
+The row with the `PloidyNo = 1` is the OncoSNP run that has the higher probability of being the correct one. 
+
+```{r}
+oncosnpDt.qc %>%
+	ggplot(aes(x = loglikelihood, y = ploidy)) +
+	geom_point()
+```
+
+## Segment Analysis
+
+```{r}
+oncosnpDt %>%
+	mutate(segLen = end - start + 1) %>%
+	left_join(chrLenDt) %>%
+	mutate(segChrProp = segLen / chrLen) %>%
+	arrange(chr, state) %>%
+	ggplot(aes(x = chr, y = segChrProp, fill = factor(state.modified))) +
+	geom_bar(stat = "identity", position = "fill") +
+	scale_fill_manual(name = "Tumour State", values = states.col) +
+	xlab("Chromosome") +
+	ylab("Proportion of Chromosome")
+```
+
+# TITAN Analysis
+---
+
+Now let's take a look at the TITAN results
+
+```{r}
+titanDt <- fread("HCC1395_exome_tumour.results.segs.txt")
+titanDt <- titanDt[, Chromosome := factor(Chromosome, levels = c(1:22, "X"))]
+
+# generate the length of each chromosome
+chrLenDt.titan <- titanDt %>%
+	mutate(segLen = End_Position - Start_Position + 1) %>%
+	group_by(Chromosome) %>%
+	summarize(chrLen = sum(segLen))
+
+titanDt %>%
+	mutate(segLen = End_Position - Start_Position + 1) %>%
+	left_join(chrLenDt.titan) %>% 
+	mutate(segChrProp = segLen / chrLen) %>% 
+	arrange(Chromosome, TITAN_state) %>%
+	ggplot(aes(x = Chromosome, y = segChrProp, fill = factor(TITAN_call))) +
+	geom_bar(stat = "identity", position = "fill") +
+	xlab("Chromosome") +
+	ylab("Proportion of Chromosome")
+```

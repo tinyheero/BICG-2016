@@ -1,0 +1,20 @@
+Parameter	Value	Comment
+tol	1e-4	Tolerance for EM algorithm.
+v	4	Degrees of freedom. Student-t distribution.
+nComp	3	Number of mixture components.
+winSz	30	Windows size used for smoothing operations.
+L	2e6	Characteristic length of events
+alpha_nu	1	Outlier rate. Hyperparameter of beta distributed prior.
+beta_nu	1	Outlier rate. Hyperparameter of beta distributed prior.
+alpha_u	1	Normal cell proportion. Hyperparameter of beta distributed prior.
+beta_u	2	Normal cell proportion. Hyperparameter of beta distributed prior.
+alpha_u0	1	Stromal contamination proportion. Hyperparameter of beta distributed prior.
+beta_u0	10	Stromal contamination proportion. Hyperparameter of beta distributed prior.
+alpha_homdel	4	Homozygous deletion. Concentration parameter for variance.
+alpha_S	4	Polymorphic SNP probes. Concentration parameter for variance.
+rel_prior_strength	0.1	Relative strength of prior information (a value of 0.1 specifies 10% strength or prior information equivalent to around 10% pseudo-observations)
+n_u	10	Number of intra-tumor heterogeniety levels to search between 0 and 1
+r_shift_range	0,-0.2
+lambda_1_range	[1000 500 100 50 25]
+lambda_2	1
+

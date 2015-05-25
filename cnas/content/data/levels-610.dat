@@ -1,0 +1,10 @@
+Copy Number	Mean Log R Ratio	Comment
+0	-2	Homozygous deletion
+1	-0.38	Hemizygous deletion
+2	0.0	Normal
+3	0.21	3n duplication
+4	0.34	4n duplication
+5	0.5	5n duplication
+6	0.65	6n duplication
+7	0.8	7n duplication
+8	1.0	8n duplication
