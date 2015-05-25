@@ -24,13 +24,13 @@ comma := ,
 
 INIT = mkdir -p $(@D); set -o pipefail;
 
-### 
-## Lab Wiki
-###
-
+# --- Lab Wiki ---
 # convert markdown into a mediawiki format to upload onto the CBW wiki
-lab.wiki : 
-	pandoc -t mediawiki -o lab.wiki lab.md
+cna-lab.wiki : 
+	pandoc -t mediawiki -o cna-lab.wiki cna-lab.md
+
+cna-data-analysis-package.tar.gz : 
+	tar -cvzf cna-data-analysis-package.tar.gz --exclude=Makefile cna-data-analysis-package
 
 ###
 ## Oncosnp
@@ -107,7 +107,7 @@ titan/bcftools/bed/HCC1395_exome_normal.var.het.bed : titan/bcftools/vcf/HCC1395
 	mkdir -p $(@D); \
 	grep -v "^#" $< | awk '{OFS="\t"; print $$1,$$2-1,$$2,$$4"/"$$5,"+"}' > $@
 
-titan/bcftools/vcf/HCC1395_exome_tumour.bcftools.vcf : titan/bcftools/vcf/het_pos.txt HCC1395/exome/HCC1395_exome_tumour.bam
+titan/bcftools/vcf/HCC1395_exome_tumour.bcftools.vcf : titan/bcftools/bed/HCC1395_exome_normal.var.het.bed HCC1395/exome/HCC1395_exome_tumour.bam
 	mkdir -p $(@D); \
 	$(SAMTOOLS) view -uF 1024 $(word 2,$^) 17 | $(SAMTOOLS) mpileup -u -I -f $(REF_FASTA) -l $(word 1,$^) - | $(BCFTOOLS) view -cg - > $@
 endif
