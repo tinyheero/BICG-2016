@@ -13,8 +13,10 @@ REF_FASTA = ref_data/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa
 CHROMOSOMES = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 MT X Y
 
 museq : results/museq/HCC1395.museq.vcf
-museq.full : $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.museq.full.$(chr).vcf)
-museq.table : results/museq/HCC1395.museq.txt
+museq.full : $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.full.museq.$(chr).vcf)
+museq.table : results/museq/HCC1395.museq.txt results/museq/HCC1395.full.museq.txt
+
+.SECONDARY : $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.full.museq.$(chr).vcf)
 
 ####
 ## Mutationseq
@@ -33,11 +35,11 @@ results/museq/HCC1395.museq.vcf :
 	-l $(@D)/$(@F).log
 
 ## Whole genome
-results/museq/HCC1395.museq.full.%.vcf : 
+results/museq/HCC1395.full.museq.%.vcf : 
 	$(call LSCRIPT_MEM_DRMAA,2G,4G,"~/share/usr/anaconda/2.1.0/bin/python $(MUTATIONSEQ_DIR)/classify.py -b 2G tumour:HCC1395/exome/HCC1395_exome_tumour.bam normal:HCC1395/exome/HCC1395_exome_normal.bam reference:$(REF_FASTA) model:$(MUTATIONSEQ_DIR)/model_v4.1.1.npz -i $* -c $(MUTATIONSEQ_DIR)/metadata.config -q 1 -o $@ -l $(@D)/$(@F).log --all")
 
 # merge all the position_file chunks into one file
-results/museq/HCC1395.museq.full.vcf : $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.museq.full.$(chr).vcf)
+results/museq/HCC1395.full.museq.vcf : $(foreach chr,$(CHROMOSOMES),results/museq/HCC1395.full.museq.$(chr).vcf)
 	grep '#' $< > $@;\
 	for file in $^; do\
 		grep -v '#' $${file} >> $@;\
