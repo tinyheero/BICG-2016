@@ -136,6 +136,8 @@ The row with the `PloidyNo = 1` is the OncoSNP run that has the higher probabili
 
 ## Segment Analysis
 
+Let's first take a look how the copy number alteration segments distribute across the genome.
+
 ```{r}
 oncosnpDt %>%
 	mutate(segLen = end - start + 1) %>%
@@ -148,6 +150,15 @@ oncosnpDt %>%
 	xlab("Chromosome") +
 	ylab("Proportion of Chromosome")
 ```
+
+OncoSNP by default will assign a copy number state (1 of 28) that a segment belongs to. In this lab, we've collapsed these states into 1 of 6 to simply visualization:
+
+1) 3N\_GAIN: 3 copies
+2) 4-8N\_GAIN: 4-8 copies
+3) HETD: Heterozygous Deletion
+4) HOMD: Homozygous Deletion
+5) LOH: Loss of Heterozygous 
+6) NEU: Neutral
 
 ## Chromosome Plots
 
@@ -177,8 +188,6 @@ rawProbeDt.melt %>%
 	ylab("")
 ```
 
-
-
 # TITAN Analysis
 
 Now let's take a look at the TITAN results
@@ -193,6 +202,24 @@ chrLenDt.titan <- titanDt %>%
 	group_by(Chromosome) %>%
 	summarize(chrLen = sum(segLen))
 
+# set colors for each copy number state
+titan.states.col <- c("HOMD" = "#1F78B4",
+											"DLOH" = "#A6CEE3", 
+											"HET" = "lightgrey", 
+											"GAIN" = "#FB9A99", 
+											"BCNA" = "#E31A1C", 
+											"UBCNA" = "#E31A1C", 
+											"ASCNA" = "#E31A1C", 
+											"NLOH" = "#33A02C", 
+											"ALOH" = "#33A02C")
+
+```
+
+## Segment Analysis
+
+Just like OncoSNP, we have the ability to look at the copy number alteration distribution across the genome.
+
+```{r}
 titanDt %>%
 	mutate(segLen = End_Position - Start_Position + 1) %>%
 	left_join(chrLenDt.titan) %>% 
@@ -201,5 +228,12 @@ titanDt %>%
 	ggplot(aes(x = Chromosome, y = segChrProp, fill = factor(TITAN_call))) +
 	geom_bar(stat = "identity", position = "fill") +
 	xlab("Chromosome") +
-	ylab("Proportion of Chromosome")
+	ylab("Proportion of Chromosome") +
+	scale_fill_manual(name = "Tumour State", values = titan.states.col)
 ```
+
+You may notice that states have different state names between OncoSNP and TITAN. Each program typically has their own nomenclature on how states are defined. It's important to understand the state names. For TITAN, this information can be found in the paper.
+
+## Chromosome Plots
+
+Detailed chromosome plots are provided by TITAN already. For exome data, these plots will be much more sparse since we don't have the same coverge as in genomes. We won't reproduce these plots in R, but you can use the code above as a framework.
