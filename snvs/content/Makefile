@@ -21,8 +21,8 @@ museq.table : results/museq/HCC1395.museq.txt
 snv-lab.wiki : 
 	pandoc -t mediawiki -o snv-lab.wiki snv-lab.md
 
-data-analysis-package.tar.gz : 
-	tar -cvzf data-analysis-package.tar.gz --exclude=Makefile data-analysis-package
+snv-data-analysis-package.tar.gz : 
+	tar -cvzf snv-data-analysis-package.tar.gz --exclude=Makefile --exclude=*.swp snv-data-analysis-package
 
 ####
 ## Mutationseq
