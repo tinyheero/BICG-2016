@@ -1,6 +1,13 @@
 # Lab Module 5 - Software Installation Instructions
 
-This page describes where to get and how to install the software used for this lab module. 
+This page describes where to get and how to install the software used for this lab module. In brief, the following pieces of software are needed for this lab:
+
+* [PennCNV](http://www.openbioinformatics.org/penncnv/penncnv_tutorial_affy_gw6.html)
+* [OncoSNP](https://sites.google.com/site/oncosnp/) (v1.4)
+* HMMCopy 
+    + [C++ based programs](http://compbio.bccrc.ca/software/hmmcopy/)
+    + [R component](http://compbio.bccrc.ca/software/hmmcopy/)
+* [TitanCNA](https://bioconductor.org/packages/release/bioc/html/TitanCNA.html)
 
 ## Installing Array Normalization Packages
 
@@ -8,7 +15,7 @@ We will use the procedure described on the [penncnv site](http://www.openbioinfo
 
 > Note: You will need to register with Affymetrix to download the library files, specifically the .cdf file, from the [affimetrix site](http://www.affymetrix.com/support/technical/byproduct.affx?product=genomewidesnp_6). The [aroma-project](http://www.aroma-project.org/docs) has a copy available which we will download since it can be done from the cloud.
 
-```
+```{bash}
 cd $INSTALL_DIR
 wget http://www.openbioinformatics.org/penncnv/download/penncnv.latest.tar.gz
 tar -xzvf penncnv.latest.tar.gz
@@ -29,7 +36,7 @@ For predicting CNVs from the array data we will use OncoSNP in this lab. The fil
 
 Here we will download OncoSNP version 1.4:
 
-```
+```{bash}
 wget http://www.well.ox.ac.uk/~cyau/oncosnp/oncosnp_v1.4.run
 bash oncosnp_v1.4.run          # enter your oncosnp password
 ```
@@ -38,7 +45,7 @@ Then follow the on-screen instructions.
 
 You'll also need to get the matching MATLAB MCR file to be used with OncoSNP. This will be described on the website. 
 
-```
+```{bash}
 wget ftp://ftp.stats.ox.ac.uk/pub/yau/oncosnp/mcr/MCRinstaller.run.zip
 unzip MCRinstaller.run.zip
 bash MCRinstaller.run          # enter your oncosnp password, and select installation directory
@@ -48,7 +55,7 @@ The `MCRinstaller.run` installer will ask you where to install the MATLAB MCR fi
 
 We will also need to download GC content files for the relevant build of the genome. For this tutorial we will use the hg19 (build 37) files.
 
-```
+```{bash}
 wget ftp://ftp.stats.ox.ac.uk/pub/yau/quantisnp2/download/b36.tar.gz
 tar -zxvf b36.tar.gz
 export GC_DIR=$INSTALL_DIR/b36
@@ -60,23 +67,29 @@ For this tutorial we will install HMMCopy. It is a Bioconductor package http://w
 
 We will start R.
 
-    R
+```{bash}
+R
+```
 
 and inside the R environment execute
 
-    source("http://bioconductor.org/biocLite.R")
-    biocLite("HMMcopy")
+```{r}
+source("http://bioconductor.org/biocLite.R")
+biocLite("HMMcopy")
+```
 
 where the last line was copied from the HMMcopy Bioconductor page. Follow along and accept any suggested updates.
 
 HMMcopy also has C package associated with it. We will need to download this from <http://compbio.bccrc.ca/software/hmmcopy>.
 
-    cd $INSTALL_DIR/src
-    wget http://compbio.bccrc.ca/files/2013/04/HMMcopy_0.1.1_14Dec2012.tar_.gz
-    mv HMMcopy_0.1.1_14Dec2012.tar_.gz HMMcopy_0.1.1_14Dec2012.tar.gz
-    tar -zxvf HMMcopy_0.1.1_14Dec2012.tar.gz
-    cd HMMcopy_0.1.1_14Dec2012
-    make
+```{bash}
+cd $INSTALL_DIR/src
+wget http://compbio.bccrc.ca/files/2013/04/HMMcopy_0.1.1_14Dec2012.tar_.gz
+mv HMMcopy_0.1.1_14Dec2012.tar_.gz HMMcopy_0.1.1_14Dec2012.tar.gz
+tar -zxvf HMMcopy_0.1.1_14Dec2012.tar.gz
+cd HMMcopy_0.1.1_14Dec2012
+make
+```
 
 ## Installing TITAN
 
