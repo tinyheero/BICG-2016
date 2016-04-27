@@ -6,20 +6,20 @@ First login into the server.
 
 Now enter the ~/workspace directory
 
-```
+```{bash}
 cd ~/workspace
 ```
 
 Create a directory for this module and enter this directory:
 
-```
+```{bash}
 mkdir Module5
 cd Module5
 ```
 
 Now let's create a link to some helper scripts we will need for this module:
 
-```
+```{bash}
 ln -s /home/ubuntu/CourseData/CG_data/Module5/scripts
 ```
 
@@ -29,44 +29,44 @@ In this section, we will set some environment variables to help facilitate the e
 
 > These variables that you set will only persist in this current session you are in. If you log out and log back into the server, you will have to set these variables again.
 
-```
+```{bash}
 INSTALL_DIR=/home/ubuntu/CourseData/CG_data/Module5/install
 ```
 
 Set the directory to where the Affymetrix SNP 6.0 normalization files are:
 
-```
+```{bash}
 GW6_DIR=$INSTALL_DIR/gw6
 ```
 
 Set the directory to where Affymetrix power tools is installed:
 
-```
+```{bash}
 APT_DIR=$INSTALL_DIR/apt-1.17.0-x86_64-intel-linux
 ```
 
 Set the path to cell definition file for Affymetrix SNP 6.0:
 
-```
+```{bash}
 SNP6_CDF=$INSTALL_DIR/GenomeWideSNP_6.cdf
 ```
 
 Oncosnp locations:
 
-```
+```{bash}
 export ONCOSNP_DIR=/usr/local/oncosnp
 export MCR_DIR=/home/ubuntu/CourseData/software/MATLAB/MCR/v82
 ```
 
 GC content files for oncosnp:
 
-```
+```{bash}
 export GC_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/b37
 ```
 
 Summary of all the above environment commands (for copy and pasting convenience):
 
-```
+```{bash}
 INSTALL_DIR=/home/ubuntu/CourseData/CG_data/Module5/install/
 GW6_DIR=$INSTALL_DIR/gw6
 APT_DIR=$INSTALL_DIR/apt-1.17.0-x86_64-intel-linux
@@ -82,13 +82,13 @@ For calling copy number variants from Affymetrix SNP 6.0 data, we will be using 
 
 ### Fetch Array Data
 
-```
+```{bash}
 ln -s /home/ubuntu/CourseData/CG_data/HCC1395
 ```
 
 Create a list of the cel files to be used by downstream tools.  In practice we would normalize many arrays in a batch.  For demonstration purposes we use just a single tumour.
 
-```
+```{bash}
 echo cel_files > cel_file_list.txt
 echo `pwd`/HCC1395/cel/GSM888107.CEL >> cel_file_list.txt
 ```
@@ -276,7 +276,8 @@ The final interesting file that OncoSNP produces is the plots HCC1395.*.ps.gz.  
 ```
 http://cbwxx.dyndns.info/Module5/results/oncosnp
 ```
-Try to open up and visualize the chromosome plots from OncoSNP. If you have trouble opening these files, then you can also download them from the wiki. 
+
+Try to open up and visualize the chromosome plots from OncoSNP. If you have trouble opening these files, then you can also download them from the wiki. 
 
 ## Analysis Of CNAs using Sequencing Data
 
