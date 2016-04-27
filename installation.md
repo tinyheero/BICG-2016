@@ -1,5 +1,4 @@
 # Linux Software Installation Guide
-# Andrew Roth
 
 The following document gives a brief overview of the essential concepts required for installing software in Linux.
 
